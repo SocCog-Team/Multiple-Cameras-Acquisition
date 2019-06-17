@@ -45,3 +45,7 @@ code for acquiring video from several FLIR Chamelion 3 cameras
 - activate py36
   
 -  python setup.py build
+
+# Notes:
+
+The SDK version 1.23.0.27 can not store video in RGB8 format (YCBCr8_CbYCr should work, but will produce wrong colors for the display, as for perfomance sake this application does not do color conversions)
