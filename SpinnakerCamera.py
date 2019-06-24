@@ -170,11 +170,21 @@ class SpinnakerCamera:
             cameraType = deviceModel[-1]
                   
             nodePixelFormat = PySpin.CEnumerationPtr(nodemap.GetNode('PixelFormat'))
+                                
+            # print the supported pixelformats, still broken as this seems to print the union of all camera's pixelformats
+            node_list = nodePixelFormat.GetEntries()
+            print('PixelFormats supported by this camera:')
+            for i_node in node_list:
+                node_enum = PySpin.CEnumEntryPtr(i_node)
+                print('%s...' % node_enum.GetSymbolic())            
+            
             if PySpin.IsAvailable(nodePixelFormat) and PySpin.IsWritable(nodePixelFormat):         
                 if cameraType == 'C':
                     self.isRGBcamera_ = True;
                     nodePixelFormatValue = PySpin.CEnumEntryPtr(nodePixelFormat.GetEntryByName('RGB8'))
                     streamProperties.format = ImageFormat.RGB24
+#                    nodePixelFormatValue = PySpin.CEnumEntryPtr(nodePixelFormat.GetEntryByName('YCbCr8_CbYCr'))
+#                    streamProperties.format = ImageFormat.YUV24
                     #streamProperties.format = ImageFormat.MONO8 # for testing mono mode
                 else: #if camera is not color (C), set Type to mono just in case
                     self.isRGBcamera_ = False
@@ -253,6 +263,7 @@ class SpinnakerCamera:
                         #frameQueue_.push_back(frame);
                         if self.isRGBcamera_:
                             self.frameQueue_.append(frame.Convert(PySpin.PixelFormat_RGB8, PySpin.NO_COLOR_PROCESSING))
+#                            self.frameQueue_.append(frame.Convert(PySpin.PixelFormat_YUV8_UYV, PySpin.NO_COLOR_PROCESSING))                        
                         else:
                             self.frameQueue_.append(frame.Convert(PySpin.PixelFormat_Mono8, PySpin.NO_COLOR_PROCESSING))     
                         # sNodeMap = self.camera_.GetTLStreamNodeMap()
