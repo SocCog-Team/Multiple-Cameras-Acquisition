@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Fri Jan 11 14:22:12 2019
-
+class for reading/writing cameras configurations and display settings to ini file
 @author: taskcontroller
 """
 import configparser

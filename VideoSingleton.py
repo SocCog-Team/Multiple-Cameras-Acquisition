@@ -2,11 +2,13 @@
 """
 Created on Thu Jan  3 13:38:55 2019
 
+VideoSingleton class is a COMPOSITION of classes providing a full control 
+of a single video stream (start/stop recording by specific camera, 
+start/stop acquisition by specific camera, etc). 
+
 @author: taskcontroller
 """
 
-## VideoSingleton class aggregates video acquisition and video processing
-#
 #  This class contains two threads: first acquires frames and put them into a buffer,
 #  second processes frames and saves them to avi file or to bmp files.
 #  VideoSingleton also owns the window where the acquired video is displayed.

@@ -3,28 +3,32 @@
 Created on Mon Jan  7 15:02:08 2019
 
 @author: taskcontroller
+This file defines window and graphical elements for the output of the acquired 
+video using wxPython toolkit and PIL image class (for the color format transformation)
+class VideoDisplay defines a window for displaying the acquired frames:
+class VideoPanel defines a graphical panel for displaying the acquired frames
 """
 
 import wx
 from PIL import Image
 
+# set of constants defining possible rotations of the displayed video
 class ImageRotation:
     ANGLE0 = 0
     ANGLE90 = 90
     ANGLE180 = 180
     ANGLE270 = 270
-    
 
-SIZE = (640, 480)
-#    width, height = image.size
-#    buffer = image.convert('RGB').tostring()
-#    bitmap = wx.BitmapFromBuffer(width, height, buffer)
-#    return bitmap
+# default size of video panel
+DEFAULT_SIZE = (640, 480)
 
+# panel (graphical element) for displaying the acquired frames, is used as a 
+# of VideoDisplay class to DELEGATE part of its functionality.
+# inherited from a standard wx panel (wx.Panel) 
 class VideoPanel(wx.Panel):       
     def __init__(self, parent):
         super().__init__(parent, -1)
-        self.SetSize(SIZE)
+        self.SetSize(DEFAULT_SIZE)
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
         self.Bind(wx.EVT_PAINT, self.onPaint)
         self.bitmap_ = None
@@ -45,7 +49,6 @@ class VideoPanel(wx.Panel):
         image = bitmap.ConvertToImage()
         (width, height) = self.GetSize()
         image = image.Scale(width, height, wx.IMAGE_QUALITY_HIGH)
-        #scaledBitmap = wx.BitmapFromImage(image)
         scaledBitmap = wx.Bitmap(image)
         return scaledBitmap
 
@@ -82,6 +85,9 @@ class VideoPanel(wx.Panel):
                 rotatedImage = rotatedImage.Rotate90()
         return rotatedImage  
 
+
+# window for displaying the acquired frames
+# inherited from a standard wx video (wx.Frame) 
 class VideoDisplay(wx.Frame):
     def __init__(self):
         style = wx.DEFAULT_FRAME_STYLE & (~wx.RESIZE_BORDER) & (~wx.CLOSE_BOX) & (~wx.MAXIMIZE_BOX)
@@ -93,15 +99,7 @@ class VideoDisplay(wx.Frame):
         
     def onClose(self, event):
         self.panel_.updateForbidden_ = True  
-        self.Destroy()
-    #    del self.panel_
-        
-    #def __del__(self):    
-        #if self.panel_.bitmap_ != None:
-        #    del self.panel_.bitmap_
-        #del self.panel_ 
-        #print("VideoDisplay deleted!")
-        
+        self.Destroy()       
     
     def showRGB(self, width, height, buffer):
         if self.panel_ != None:
@@ -111,7 +109,6 @@ class VideoDisplay(wx.Frame):
     def showMono(self, width, height, buffer):
         if self.panel_ != None:
             self.panel_.showNew(width, height, buffer, isRGB = False)
-
         
     def setScaling(self, needScale):
         if self.panel_ != None:
@@ -127,5 +124,5 @@ class VideoDisplay(wx.Frame):
             self.panel_.SetSize((width, height))  
             self.SetClientSize((width, height)) 
         
-    #def setWindowTitle    
+   
         

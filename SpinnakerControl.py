@@ -3,7 +3,7 @@ import PySpin
 from VideoSingleton import VideoSingleton
 from data_structures import CameraProperties
 
-
+# class for checking available memory
 class MEMORYSTATUSEX(ctypes.Structure):
     _fields_ = [
         ("dwLength", ctypes.c_ulong),

@@ -7,9 +7,7 @@ import PySpin
 from collections import deque
 from data_structures import ImageFormat, StreamProperties, CameraProperties
 import datetime
-
-# StreamProperties structure stores information about frame stream acquired by a camera
-   
+ 
 
 class SpinnakerCamera:
     # Use the following enum and global constant to select the type

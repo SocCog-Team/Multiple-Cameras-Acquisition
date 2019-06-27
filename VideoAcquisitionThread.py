@@ -2,6 +2,10 @@
 """
 Created on Fri Jan  4 09:27:07 2019
 
+Thread acquiring frames from the camera. It puts each frame 
+to a queue for saving to video file and to a buffer for displaying. 
+Each SpinnakerCamera instance should have own instance of VideoAcquisitionThread
+
 @author: taskcontroller
 """
 

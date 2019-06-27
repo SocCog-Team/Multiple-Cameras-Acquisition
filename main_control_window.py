@@ -2,6 +2,9 @@
 """
 Created on Tue Jan  8 09:24:35 2019
 
+main_control_window defines MainWindow (inherited from wx.Frame) and inherites 
+from it VideoAcquisitionControl, a window for controlling acquisition and recording. 
+
 @author: taskcontroller
 """
 
@@ -10,6 +13,7 @@ from acquisition_ini import AcquisitionINI
 
 import wx
 
+## parent class for the main window 
 class MainWindow(wx.Frame):
     def __init__(self, title):
         wx.Frame.__init__(self, None, title=title, pos=(150,150), size=(350,200))
@@ -37,11 +41,14 @@ class MainWindow(wx.Frame):
         panel.Layout()
         
     def onClose(self, event):
+        # show the close dialog
         dlg = wx.MessageDialog(self, 
             "Do you really want to close this application?",
             "Confirm Exit", wx.OK|wx.CANCEL|wx.ICON_QUESTION)
         result = dlg.ShowModal()
         dlg.Destroy()
+        
+        # neatly close the window
         if result == wx.ID_OK:
             self.Destroy() 
             del self.statusbar_

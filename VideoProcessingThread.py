@@ -2,6 +2,9 @@
 """
 Created on Thu Jan  3 14:41:47 2019
 
+A thread saving frames from a queue to a video file. 
+Each SpinnakerCamera instance should have own instance of VideoProcessingThread
+
 @author: taskcontroller
 """
 
