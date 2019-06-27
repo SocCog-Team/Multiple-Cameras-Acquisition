@@ -168,14 +168,7 @@ class SpinnakerCamera:
             cameraType = deviceModel[-1]
                   
             nodePixelFormat = PySpin.CEnumerationPtr(nodemap.GetNode('PixelFormat'))
-                                
-            # print the supported pixelformats, still broken as this seems to print the union of all camera's pixelformats
-            node_list = nodePixelFormat.GetEntries()
-            print('PixelFormats supported by this camera:')
-            for i_node in node_list:
-                node_enum = PySpin.CEnumEntryPtr(i_node)
-                print('%s...' % node_enum.GetSymbolic())            
-            
+
             if PySpin.IsAvailable(nodePixelFormat) and PySpin.IsWritable(nodePixelFormat):         
                 if cameraType == 'C':
                     self.isRGBcamera_ = True;
@@ -199,7 +192,19 @@ class SpinnakerCamera:
                 else:
                     print('Pixel format not available...')
                     result = -1
-            
+                    # try to be helpful
+                    tmp_nodePixelFormat = PySpin.CEnumerationPtr(nodemap.GetNode('PixelFormat'))
+                    node_list = tmp_nodePixelFormat.GetEntries()
+                    supported_pixelformat_string = ''
+                    print('PixelFormats supported by this camera:')
+                    for i_node in node_list:
+                        node_enum = PySpin.CEnumEntryPtr(i_node)
+                        if not PySpin.IsAvailable(node_enum) or not PySpin.IsReadable(node_enum):
+                            continue
+                        supported_pixelformat_string += '{} '.format(node_enum.GetSymbolic())
+                
+                    print('%s...' % supported_pixelformat_string)       
+                    
             self.setBufferMode()                
             self.enableFrameRateSetting()
 
