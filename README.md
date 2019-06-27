@@ -1,6 +1,62 @@
 # Multiple-Cameras-Acquisition
 code for acquiring video from several FLIR Chamelion 3 cameras
 
+# To do:
+
+- synchonisation of acquisition from several cameras using sowtware/hardware trigger;
+
+- implementation of acquisition/recording control through a network (allowing camera control through EventIDE and synchonisation of video acquisition by the software on several machines)
+
+- adapting the code to the needs of specific setups
+
+# Code structure:
+
+1. Principal classes
+
+1.1 SpinnakerControl controls the camera system and is responsible for the most general actions (start/stop recording by all cameras, start/stop acquisition by all cameras, etc)
+
+1.2 VideoSingleton is a COMPOSITION of classes providing a full control of a single video stream (start/stop recording by specific camera, start/stop acquisition by specific camera, etc). It is composed out of the following classes:
+
+- SpinnakerCamera (responsible for acquisition) providing access to basic camera functions based on Spinnaker SDK
+
+- VideoAcquisitionThread acquiring frames from the camera. It puts each frame to a queue for saving to a video file and to a buffer for displaying.
+
+- VideoProcessingThread saving frames from a queue to a video file.
+
+- wxWindow (responsible for video display) defining window and graphical elements for the output of the acquired video
+
+2 Principal auxillary classes
+
+2.1 SpinnakerCamera provides an interface for a single camera control. This class isa wrapping spinnaker API
+
+2.2 VideoAcquisitionThread acquiring frames from the camera. It puts each frame to a queue for saving to a video file and to a buffer for displaying. Each SpinnakerCamera instance should have own instance of VideoAcquisitionThread
+
+2.3 VideoProcessingThread saving frames from a queue to a video file. Each SpinnakerCamera instance should have own instance of VideoProcessingThread
+
+3. Other auxillary classes and units
+
+3.1 main_control_window defines MainWindow (inherited from wx.Frame) and inherites 
+from it VideoAcquisitionControl, a window for controlling acquisition and recording. 
+
+3.2 wxWindow defines window and graphical elements for the output of the acquired video using wxPython toolkit and PIL image class (for the color format transformation).
+
+- class VideoDisplay defines a window for displaying the acquired frames:
+
+- class VideoPanel defines a graphical panel for displaying the acquired frames
+
+3.3 data_structures defines several data structures used throughout the project: 
+
+- ImageFormat: constants specifying pixel format in acquired and displayed frames
+    
+- StreamProperties: properties of the frames stream sent by a camera (dimensions, frame rate, pixel format)
+    
+- CameraProperties: various camera settings including frame rate, exposure time, gain, etc. 
+        
+- DisplayProperties: display settings (window size, whether stretching is allowed, etc)
+
+3.4 acquisition_ini unit defines AcquisitionINI class for reading/writing cameras and display settings to ini file
+
+4. setup.py - script for creating an executable version
 
 # Installation guide:
 1.	Get latest anaconda for windows: https://www.anaconda.com/download/
