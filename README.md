@@ -11,7 +11,7 @@ code for acquiring video from several FLIR Chamelion 3 cameras
 
 - change the interpretation of -1 to mean Auto for gain and exposure time, add a toggle for the white balance add a per camera save path and file prefix/suffix
 
-- add pixelformat as a configurable to the ini file
+- add pixelformat as a configurable to the ini file (also abstract the additional pixelformat dependent parameters like size of the backing buffer and the pixelformat enumeration values).
 
 # Code structure:
 
