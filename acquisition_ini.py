@@ -24,6 +24,7 @@ class AcquisitionINI:
 
     def checkAndRecreateSection(self, deviceName, subsection):
         sectionFullName = deviceName + ", " + subsection
+        #print('sectionFullName: %s' % sectionFullName)
         recreateSection = False
         if self.config_.has_section(sectionFullName):
             labels, entries = zip(*self.config_.items(sectionFullName))                       
@@ -65,7 +66,50 @@ class AcquisitionINI:
             self.config_.write(cfgfile)
             cfgfile.close()
         return sectionFullName    
-        
+  
+    def readSectionOnly(self, deviceName, subsection):
+        sectionFullName = deviceName + ", " + subsection
+        recreateSection = False
+        if self.config_.has_section(sectionFullName):
+            labels, entries = zip(*self.config_.items(sectionFullName))                       
+            if subsection == self.cameraSubsectionTitle_: 
+                correctLabels = CameraProperties._fields
+            elif subsection == self.displaySubsectionTitle_:             
+                correctLabels = DisplayProperties._fields
+            else:
+                correctLabels = []   
+            if labels != correctLabels:   
+                self.config_.remove_section(sectionFullName)
+                print('Error in section %s of ini-file, recreated' %sectionFullName)
+                recreateSection = False
+        else:
+             recreateSection = False
+            
+#        if recreateSection:
+#            self.config_.add_section(sectionFullName)
+#            if subsection == self.cameraSubsectionTitle_:   # if Camera subsection is absent ...
+#                if deviceName == self.defaultSectionTitle_: # ... for default section - recreate
+#                    defaultProperties = CameraProperties()   
+#                else:                                       # ... otherwise - copy from default section
+#                    defaultProperties = self.getCameraProperties(self.defaultSectionTitle_)
+#            elif subsection == self.displaySubsectionTitle_:# if Camera subsection is absent ...
+#                if deviceName == self.defaultSectionTitle_: # ... for default section - recreate
+#                    defaultProperties = DisplayProperties()
+#                else:                                       # ... otherwise - copy from default section
+#                    defaultProperties = self.getDisplayProperties(self.defaultSectionTitle_)
+#            
+#            iniFileLabels = defaultProperties._fields
+#            iniFileEntries = list(defaultProperties)
+#            for label, entry in zip(iniFileLabels, iniFileEntries):
+#                # zip stops when the shorter of iniFileLabels or iniFileEntries stops.
+#                self.config_.set(sectionFullName, label, str(entry))
+#                #print(label + ", " + str(entry))
+#            
+#            # write config data to the file
+#            cfgfile = open(self.filename_,'w')
+#            self.config_.write(cfgfile)
+#            cfgfile.close()
+        return sectionFullName          
                        
     def load(self):  
         self.config_.read(self.filename_) 
@@ -92,12 +136,35 @@ class AcquisitionINI:
         print(entries)    
         return properties
 
+    # Returns a list of camera options  
+    def getPropertiesRO(self, deviceName, subsection):
+        # check whether section exists and get full section name from deviceName
+        sectionFullName = self.readSectionOnly(deviceName, subsection)           
+        
+        labels, entries = zip(*self.config_.items(sectionFullName))     
+        print(entries) 
+        if subsection == self.cameraSubsectionTitle_: 
+            properties = CameraProperties(*entries)
+        elif subsection == self.displaySubsectionTitle_:             
+            properties = DisplayProperties(*entries) 
+        else:
+            properties = None
+            
+        print(entries)    
+        return properties
+
 
     # Returns a namedtuple of camera properties  
     def getCameraProperties(self, deviceName):
+        #print('deviceName: %s' % deviceName)
         return self.getProperties(deviceName, self.cameraSubsectionTitle_)
     
     # Returns a namedtuple of display options  
     def getDisplayProperties(self, deviceName):
         return self.getProperties(deviceName, self.displaySubsectionTitle_)
+
+    # Returns a namedtuple of camera properties  
+    def getCameraPropertiesRO(self, deviceName):
+        #print('deviceName: %s' % deviceName)
+        return self.getPropertiesRO(deviceName, self.cameraSubsectionTitle_)
             

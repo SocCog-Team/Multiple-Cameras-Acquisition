@@ -5,9 +5,12 @@
 import PySpin
 #import copy
 from collections import deque
+import configparser
 from data_structures import ImageFormat, StreamProperties, CameraProperties
 import datetime
-from acquisition_ini import AcquisitionINI 
+from acquisition_ini import AcquisitionINI
+#from SpinnakerControl import SpinnakerControl 
+
 
 class SpinnakerCamera:
     # Use the following enum and global constant to select the type
@@ -37,6 +40,7 @@ class SpinnakerCamera:
         self.captureOn_ = False  # whether frames are captured into a file
         self.stopCaptureFlag_ = False # flag for stopping the capture
         self.isRGBcamera_ = False 
+        self.requested_pixelformat = None
 
     def __del__(self):
         self.camera_.DeInit()
@@ -169,25 +173,85 @@ class SpinnakerCamera:
                   
             nodePixelFormat = PySpin.CEnumerationPtr(nodemap.GetNode('PixelFormat'))
 
-            if PySpin.IsAvailable(nodePixelFormat) and PySpin.IsWritable(nodePixelFormat):         
-                
+            if PySpin.IsAvailable(nodePixelFormat) and PySpin.IsWritable(nodePixelFormat):
+                # the goal is simply to extract the current camera's configured pixelformat from acquisition.ini
                 cameraName = self.getName()
-                print('cameraName: %s' % cameraName)
-                current_CameraProperties = AcquisitionINI.getCameraProperties(cameraName)
-                current_pixelFormat = current_CameraProperties.pixelFormat
-                print('pixelFormat: %s' % current_pixelFormat)
+                cameraModel = self.getModel()
+                # re-create the key
+                sectionFullName = cameraModel + ", ID " + cameraName + ", Camera"
+                print('acquisition.ini sectionFullName: %s' % sectionFullName)
+                # the ini file was alreadyt checked, so we simply assume a clean ini file
+                self.config_ = configparser.RawConfigParser()
+                self.config_.optionxform = lambda option: option # switch to case-preserving mode 
+                self.config_.read("acquisition.ini")
+                if self.config_.has_section(sectionFullName):
+                    labels, entries = zip(*self.config_.items(sectionFullName)) 
+                else:
+                    print('Could nor read sectionFullName: %s' % sectionFullName)
                 
-                if cameraType == 'C':
-                    self.isRGBcamera_ = True;
-                    nodePixelFormatValue = PySpin.CEnumEntryPtr(nodePixelFormat.GetEntryByName('RGB8'))
+                current_CameraProperties = CameraProperties(*entries)
+                current_pixelFormat = current_CameraProperties.pixelFormat
+                print('current_pixelFormat: %s' % current_pixelFormat)
+                del self.config_
+                
+                self.requested_pixelformat = current_pixelFormat
+                
+                #this is now generic for all pixelformats
+                nodePixelFormatValue = PySpin.CEnumEntryPtr(nodePixelFormat.GetEntryByName(current_pixelFormat))              
+                
+                if current_pixelFormat == 'RGB8':
+                    self.isRGBcamera_ = True;                   
                     streamProperties.format = ImageFormat.RGB24
-#                    nodePixelFormatValue = PySpin.CEnumEntryPtr(nodePixelFormat.GetEntryByName('YCbCr8_CbYCr'))
 #                    streamProperties.format = ImageFormat.YUV24
                     #streamProperties.format = ImageFormat.MONO8 # for testing mono mode
-                else: #if camera is not color (C), set Type to mono just in case
+                elif current_pixelFormat == 'Mono8': #if camera is not color (C), set Type to mono just in case
                     self.isRGBcamera_ = False
-                    nodePixelFormatValue = PySpin.CEnumEntryPtr(nodePixelFormat.GetEntryByName('Mono8'))
                     streamProperties.format = ImageFormat.MONO8   
+                elif current_pixelFormat == 'Mono12Packed':
+                    self.isRGBcamera_ = False;                   
+                    streamProperties.format = ImageFormat.RGB24
+                elif current_pixelFormat == 'Mono12p':
+                    self.isRGBcamera_ = False;                   
+                    streamProperties.format = ImageFormat.RGB24
+                elif current_pixelFormat == 'Mono16':
+                    self.isRGBcamera_ = False;                   
+                    streamProperties.format = ImageFormat.Mono16
+                elif current_pixelFormat == 'BayerGR8':
+                    self.isRGBcamera_ = True;                   
+                    streamProperties.format = ImageFormat.RGB24
+                elif current_pixelFormat == 'BayerGR12p':
+                    self.isRGBcamera_ = True;                   
+                    streamProperties.format = ImageFormat.RGB24
+                elif current_pixelFormat == 'BayerGR12Packed':
+                    self.isRGBcamera_ = True;                   
+                    streamProperties.format = ImageFormat.RGB24
+                elif current_pixelFormat == 'BayerGR16':
+                    self.isRGBcamera_ = True;                   
+                    streamProperties.format = ImageFormat.RGB24
+                elif current_pixelFormat == 'YCbCr411_8_CbYYCrYY':
+                    self.isRGBcamera_ = True;                   
+                    streamProperties.format = ImageFormat.RGB24
+                elif current_pixelFormat == 'YCbCr422_8_CbYCrY':
+                    self.isRGBcamera_ = True;                   
+                    streamProperties.format = ImageFormat.RGB24
+                elif current_pixelFormat == 'YCbCr8_CbYCr':
+                    self.isRGBcamera_ = True;                   
+                    streamProperties.format = ImageFormat.RGB24
+                else:
+                   print('The following pixelformat is not yet handled: %s' % current_pixelFormat)                
+                
+                
+#                if cameraType == 'C':
+#                    self.isRGBcamera_ = True;
+#                    nodePixelFormatValue = PySpin.CEnumEntryPtr(nodePixelFormat.GetEntryByName('RGB8'))
+#                    streamProperties.format = ImageFormat.RGB24
+##                    nodePixelFormatValue = PySpin.CEnumEntryPtr(nodePixelFormat.GetEntryByName('YCbCr8_CbYCr'))
+##                    streamProperties.format = ImageFormat.YUV24
+#                    #streamProperties.format = ImageFormat.MONO8 # for testing mono mode
+#                else: #if camera is not color (C), set Type to mono just in case
+#                    self.isRGBcamera_ = False
+#                    nodePixelFormatValue = PySpin.CEnumEntryPtr(nodePixelFormat.GetEntryByName('Mono8'))
+#                    streamProperties.format = ImageFormat.MONO8   
                 
                 # Retrieve the desired entry node from the enumeration node
                 if PySpin.IsAvailable(nodePixelFormatValue) and PySpin.IsReadable(nodePixelFormatValue):
@@ -271,11 +335,38 @@ class SpinnakerCamera:
                         self.receivedFramesCnt_ += 1
                         #frameQueue_.push(frame); # Deep copy image into image vector
                         #frameQueue_.push_back(frame);
-                        if self.isRGBcamera_:
+                        
+                        if self.requested_pixelformat == 'Mono8':       
+                             self.frameQueue_.append(frame.Convert(PySpin.PixelFormat_Mono8, PySpin.NO_COLOR_PROCESSING))
+                        elif self.requested_pixelformat == 'RGB8':
                             self.frameQueue_.append(frame.Convert(PySpin.PixelFormat_RGB8, PySpin.NO_COLOR_PROCESSING))
-#                            self.frameQueue_.append(frame.Convert(PySpin.PixelFormat_YUV8_UYV, PySpin.NO_COLOR_PROCESSING))                        
+                        elif self.requested_pixelformat == 'Mono12Packed':
+                            self.frameQueue_.append(frame.Convert(PySpin.PixelFormat_Mono12Packed, PySpin.NO_COLOR_PROCESSING))
+                        elif self.requested_pixelformat == 'Mono12p':
+                            self.frameQueue_.append(frame.Convert(PySpin.PixelFormat_Mono12p, PySpin.NO_COLOR_PROCESSING))
+                        elif self.requested_pixelformat == 'Mono16':
+                            self.frameQueue_.append(frame.Convert(PySpin.PixelFormat_Mono16, PySpin.NO_COLOR_PROCESSING))
+                        elif self.requested_pixelformat == 'BayerGR8':
+                            self.frameQueue_.append(frame.Convert(PySpin.PixelFormat_BayerGR8, PySpin.NO_COLOR_PROCESSING))
+                        elif self.requested_pixelformat == 'BayerGR12p':
+                            self.frameQueue_.append(frame.Convert(PySpin.PixelFormat_BayerGR12p, PySpin.NO_COLOR_PROCESSING))
+                        elif self.requested_pixelformat == 'BayerGR12Packed':
+                            self.frameQueue_.append(frame.Convert(PySpin.PixelFormat_BayerGR12Packed, PySpin.NO_COLOR_PROCESSING))
+                        elif self.requested_pixelformat == 'BayerGR16':
+                            self.frameQueue_.append(frame.Convert(PySpin.PixelFormat_BayerGR16, PySpin.NO_COLOR_PROCESSING))
+                        elif self.requested_pixelformat == 'YCbCr411_8_CbYYCrYY':
+                            self.frameQueue_.append(frame.Convert(PySpin.PixelFormat_YCbCr411_8_CbYYCrYY, PySpin.NO_COLOR_PROCESSING))
+                        elif self.requested_pixelformat == 'YCbCr422_8_CbYCrY':
+                            self.frameQueue_.append(frame.Convert(PySpin.PixelFormat_YCbCr422_8_CbYCrY, PySpin.NO_COLOR_PROCESSING))
+                        elif self.requested_pixelformat == 'YCbCr8_CbYCr':
+                            self.frameQueue_.append(frame.Convert(PySpin.PixelFormat_YCbCr8_CbYCr, PySpin.NO_COLOR_PROCESSING))
                         else:
-                            self.frameQueue_.append(frame.Convert(PySpin.PixelFormat_Mono8, PySpin.NO_COLOR_PROCESSING))     
+                            print('Requested pixelformat not yet supported: %s' % self.requested_pixelformat)
+#                        if self.isRGBcamera_:
+#                            self.frameQueue_.append(frame.Convert(PySpin.PixelFormat_RGB8, PySpin.NO_COLOR_PROCESSING))
+##                            self.frameQueue_.append(frame.Convert(PySpin.PixelFormat_YUV8_UYV, PySpin.NO_COLOR_PROCESSING))                        
+#                        else:
+#                            self.frameQueue_.append(frame.Convert(PySpin.PixelFormat_Mono8, PySpin.NO_COLOR_PROCESSING))     
                         # sNodeMap = self.camera_.GetTLStreamNodeMap()
                         # streamNode = sNodeMap.GetNode("StreamTotalBufferCount");
                         # bufferCount = streamNode.GetValue()
