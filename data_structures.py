@@ -25,9 +25,9 @@ class StreamProperties:
         return frameSize      
     
 
-class CameraProperties(namedtuple('CameraProperties', ['fps', 'gain', 'exposure', 'xFlip', 'yFlip'])):
+class CameraProperties(namedtuple('CameraProperties', ['fps', 'gain', 'exposure', 'xFlip', 'yFlip', 'pixelFormat'])):
     def __new__(cls, fps = 25.0, gain = 0.0, exposure = 39000.0, 
-                       xFlip = False, yFlip = False):
+                       xFlip = False, yFlip = False, pixelFormat = 'Mono8'):
         try:
             fps = float(fps)
         except ValueError:
@@ -53,13 +53,19 @@ class CameraProperties(namedtuple('CameraProperties', ['fps', 'gain', 'exposure'
         try:
             yFlip = bool(yFlip)
         except ValueError:
-            raise ValueError('yFlip value ' + str(yFlip) + ' in ini-file has incorrect format!')   
-        self = super().__new__(cls, fps, gain, exposure, xFlip, yFlip)
+            raise ValueError('yFlip value ' + str(yFlip) + ' in ini-file has incorrect format!')  
+            
+        try:
+            pixelFormat = str(pixelFormat)
+        except ValueError:
+            raise ValueError('pixelFormat value ' + str(pixelFormat) + ' in ini-file has incorrect format!')  
+            
+        self = super().__new__(cls, fps, gain, exposure, xFlip, yFlip, pixelFormat)
         return self
         
         
 class DisplayProperties(namedtuple('DisplayProperties', ['stretch', 'rotation', 'windowWidth', 'windowHeight'])): 
-    def __new__(cls, stretch = True, rotation = 0, windowWidth = 640, windowHeight = 480):
+    def __new__(cls, stretch = True, rotation = 0, windowWidth = 640, windowHeight = 512):
         try:
             stretch = bool(stretch)
         except ValueError:

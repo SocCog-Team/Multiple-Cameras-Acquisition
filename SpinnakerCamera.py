@@ -7,7 +7,7 @@ import PySpin
 from collections import deque
 from data_structures import ImageFormat, StreamProperties, CameraProperties
 import datetime
- 
+from acquisition_ini import AcquisitionINI 
 
 class SpinnakerCamera:
     # Use the following enum and global constant to select the type
@@ -170,6 +170,13 @@ class SpinnakerCamera:
             nodePixelFormat = PySpin.CEnumerationPtr(nodemap.GetNode('PixelFormat'))
 
             if PySpin.IsAvailable(nodePixelFormat) and PySpin.IsWritable(nodePixelFormat):         
+                
+                cameraName = self.getName()
+                print('cameraName: %s' % cameraName)
+                current_CameraProperties = AcquisitionINI.getCameraProperties(cameraName)
+                current_pixelFormat = current_CameraProperties.pixelFormat
+                print('pixelFormat: %s' % current_pixelFormat)
+                
                 if cameraType == 'C':
                     self.isRGBcamera_ = True;
                     nodePixelFormatValue = PySpin.CEnumEntryPtr(nodePixelFormat.GetEntryByName('RGB8'))
