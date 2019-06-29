@@ -66,32 +66,40 @@ class VideoPanel(wx.Panel):
             bufferRGB = imageMono.convert('RGB').tobytes()
             newBitmap = wx.Bitmap.FromBuffer(width, height, bufferRGB)
             
-
-#        if self.COLOR == 'RGB':
-#            print('RGB')
-#            newBitmap = wx.Bitmap.FromBuffer(width, height, buffer)                                    
-#            if self.rotationAngle_ != ImageRotation.ANGLE0:
-#                rotatedImage = self.rotate(newBitmap.ConvertToImage())
-#                newBitmap = rotatedImage.ConvertToBitmap()
-#        elif self.COLOR == 'CbYCr':
-#            imageCbYCr = Image.frombuffer('YCbCr', (width, height), buffer, 'raw', 'YCbCr', 0, 1)
-#            if self.rotationAngle_ != ImageRotation.ANGLE0:
-#                imageCbYCr = self.rotate(imageCbYCr)   
-#            bufferRGB = imageCbYCr.convert('RGB').tobytes()
-#            newBitmap = wx.Bitmap.FromBuffer(width, height, bufferRGB)                  
-#        else: 
-#            imageMono = Image.frombuffer('L', (width, height), buffer, 'raw', 'L', 0, 1)
-#            if self.rotationAngle_ != ImageRotation.ANGLE0:
-#                imageMono = self.rotate(imageMono)   
-#            bufferRGB = imageMono.convert('RGB').tobytes()
-#            newBitmap = wx.Bitmap.FromBuffer(width, height, bufferRGB)  
-            
         if self.needScale_:            
             self.bitmap_ = self.scaleToWindow(newBitmap)
         else:
             self.bitmap_ = newBitmap
             #self.bitmap_ = wx.BitmapFromBuffer(width, height, buffer)
         self.Update()
+    
+    def showNewByPixelFormat(self, pixelformat_string, width, height, buffer):
+        if pixelformat_string == 'RGB8':
+            newBitmap = wx.Bitmap.FromBuffer(width, height, buffer)                                    
+        elif pixelformat_string == 'YCbCr8_CbYCr':
+            #TODO sort the image planes from CbYCr to YCbCr
+            imageCbYCr = Image.frombuffer('YCbCr', (width, height), buffer, 'raw', 'YCbCr', 0, 1)
+            bufferRGB = imageCbYCr.convert('RGB').tobytes()
+            newBitmap = wx.Bitmap.FromBuffer(width, height, bufferRGB)                  
+        elif pixelformat_string == 'Mono8':
+            imageMono = Image.frombuffer('L', (width, height), buffer, 'raw', 'L', 0, 1)
+            bufferRGB = imageMono.convert('RGB').tobytes()
+            newBitmap = wx.Bitmap.FromBuffer(width, height, bufferRGB)  
+        else:
+            #print('showNewByPixelFormat: Unhandled pixelformat: %s' % pixelformat_string)
+            tmp = 0
+
+        # treat rotation as xcommon operation and always rotate the RGB image
+        if self.rotationAngle_ != ImageRotation.ANGLE0:
+            rotatedImage = self.rotate(newBitmap.ConvertToImage())
+            newBitmap = rotatedImage.ConvertToBitmap()
+            
+        if self.needScale_:            
+            self.bitmap_ = self.scaleToWindow(newBitmap)
+        else:
+            self.bitmap_ = newBitmap
+            #self.bitmap_ = wx.BitmapFromBuffer(width, height, buffer)
+        self.Update()    
     
     def onPaint(self, event):
         if self.bitmap_ != None:
@@ -137,7 +145,12 @@ class VideoDisplay(wx.Frame):
         self.COLOR = 'Mono'
         if self.panel_ != None:
             self.panel_.showNew(width, height, buffer, isRGB = False)
-        
+  
+    def showByPixelFormat(self, pixelformat_string, width, height, buffer):
+        self.COLOR = pixelformat_string
+        if self.panel_ != None:
+            self.panel_.showNewByPixelFormat(pixelformat_string, width, height, buffer)
+      
     def setScaling(self, needScale):
         if self.panel_ != None:
             self.panel_.needScale_ = needScale 

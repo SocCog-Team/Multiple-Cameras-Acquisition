@@ -63,12 +63,16 @@ class VideoAcquisitionThread(threading.Thread):
                     result, self.frameBuffer_ = self.spinnakerCamera_.acquireFrames(True)
                     #self.spinnakerCamera_.processFrame()
                     if result == 0:
-                        if self.streamProperties_.format == ImageFormat.RGB24:
-                            self.videoDisplay_.showRGB(self.streamProperties_.width, self.streamProperties_.height, self.frameBuffer_)
-                        elif self.streamProperties_.format == ImageFormat.YCbCr:
-                            self.videoDisplay_.showCbYCr(self.streamProperties_.width, self.streamProperties_.height, self.frameBuffer_)
-                        else:
-                            self.videoDisplay_.showMono(self.streamProperties_.width, self.streamProperties_.height, self.frameBuffer_)
+                        #print('self.spinnakerCamera_.cameraProperties.pixelFormat: %s' % self.spinnakerCamera_.cameraProperties.pixelFormat)
+                        self.videoDisplay_.showByPixelFormat(self.spinnakerCamera_.PySpin_OutPixelFormatString , self.streamProperties_.width, self.streamProperties_.height, self.frameBuffer_)
+                        
+                        
+#                        if self.streamProperties_.format == ImageFormat.RGB24:
+#                            self.videoDisplay_.showRGB(self.streamProperties_.width, self.streamProperties_.height, self.frameBuffer_)
+#                        elif self.streamProperties_.format == ImageFormat.YCbCr:
+#                            self.videoDisplay_.showCbYCr(self.streamProperties_.width, self.streamProperties_.height, self.frameBuffer_)
+#                        else:
+#                            self.videoDisplay_.showMono(self.streamProperties_.width, self.streamProperties_.height, self.frameBuffer_)
                         #image = Image.frombytes(self.streamProperties_.format, (self.streamProperties_.width, self.streamProperties_.height), self.frameBuffer_, 'raw')
                         #BitmapFromBuffer(self.streamProperties_.width, self.streamProperties_.height, self.frameBuffer_)
                         #image.show()
