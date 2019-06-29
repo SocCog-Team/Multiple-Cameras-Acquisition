@@ -87,7 +87,7 @@ class VideoPanel(wx.Panel):
             newBitmap = wx.Bitmap.FromBuffer(width, height, bufferRGB)  
         else:
             #print('showNewByPixelFormat: Unhandled pixelformat: %s' % pixelformat_string)
-            tmp = 0
+            newBitmap = wx.Bitmap.FromBuffer(width, height, buffer)  
 
         # treat rotation as xcommon operation and always rotate the RGB image
         if self.rotationAngle_ != ImageRotation.ANGLE0:

@@ -64,7 +64,13 @@ class VideoAcquisitionThread(threading.Thread):
                     #self.spinnakerCamera_.processFrame()
                     if result == 0:
                         #print('self.spinnakerCamera_.cameraProperties.pixelFormat: %s' % self.spinnakerCamera_.cameraProperties.pixelFormat)
-                        self.videoDisplay_.showByPixelFormat(self.spinnakerCamera_.PySpin_OutPixelFormatString , self.streamProperties_.width, self.streamProperties_.height, self.frameBuffer_)
+                        # any color conversion for display purposes needs to go here
+                        
+#                        # convert image?
+#                        if self.spinnakerCamera_.PySpin_DisplayPixelFormatString != self.spinnakerCamera_.requested_pixelformat:
+#                            self.frameBuffer_ = self.frameBuffer_.frame.Convert(self.PySpin_DisplayPixelFormat, PySpin.HQ_LINEAR)
+                        
+                        self.videoDisplay_.showByPixelFormat(self.spinnakerCamera_.PySpin_DisplayPixelFormatString , self.streamProperties_.width, self.streamProperties_.height, self.frameBuffer_)
                         
                         
 #                        if self.streamProperties_.format == ImageFormat.RGB24:

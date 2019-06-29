@@ -44,6 +44,10 @@ class SpinnakerCamera:
         self.PySpin_PixelFormat = None      # PySpins enumeration value for the configured pixelformat
         self.PySpin_OutPixelFormat = None
         self.PySpin_OutPixelFormatString = None
+
+        self.PySpin_DisplayPixelFormat = None
+        self.PySpin_DisplayPixelFormatString = None
+        
         self.cameraProperties = None
         self.displayProperties = None
 
@@ -210,69 +214,107 @@ class SpinnakerCamera:
                 nodePixelFormatValue = PySpin.CEnumEntryPtr(nodePixelFormat.GetEntryByName(self.cameraProperties.pixelFormat))              
                 
                 self.PySpin_OutPixelFormatString = self.cameraProperties.pixelFormat
+                self.PySpin_DisplayPixelFormatString = self.cameraProperties.pixelFormat
                 
                 if self.cameraProperties.pixelFormat == 'RGB8':
                     self.isRGBcamera_ = True;                   
                     streamProperties.format = ImageFormat.RGB24
                     self.PySpin_PixelFormat = PySpin.PixelFormat_RGB8
+                    self.PySpin_OutPixelFormat = self.PySpin_PixelFormat
+                    self.PySpin_DisplayPixelFormat = self.PySpin_OutPixelFormat
 #                    streamProperties.format = ImageFormat.YUV24
                     #streamProperties.format = ImageFormat.MONO8 # for testing mono mode
+                    
                 elif self.cameraProperties.pixelFormat == 'Mono8': #if camera is not color (C), set Type to mono just in case
                     self.isRGBcamera_ = False
                     streamProperties.format = ImageFormat.MONO8
                     self.PySpin_PixelFormat = PySpin.PixelFormat_Mono8
                     self.PySpin_OutPixelFormat = self.PySpin_PixelFormat
+                    self.PySpin_DisplayPixelFormat = PySpin.PixelFormat_Mono8
+                    self.PySpin_DisplayPixelFormatString = 'Mono8'
+                    
                 elif self.cameraProperties.pixelFormat == 'Mono12Packed':
                     self.isRGBcamera_ = False;                   
                     streamProperties.format = ImageFormat.RGB24
                     self.PySpin_PixelFormat = PySpin.PixelFormat_Mono12Packed
                     self.PySpin_OutPixelFormat = self.PySpin_PixelFormat
+                    self.PySpin_DisplayPixelFormat = PySpin.PixelFormat_Mono8
+                    self.PySpin_DisplayPixelFormatString = 'Mono8'
+                    
                 elif self.cameraProperties.pixelFormat == 'Mono12p':
                     self.isRGBcamera_ = False;                   
                     streamProperties.format = ImageFormat.RGB24
                     self.PySpin_PixelFormat = PySpin.PixelFormat_Mono12p
                     self.PySpin_OutPixelFormat = self.PySpin_PixelFormat
+                    self.PySpin_DisplayPixelFormat = PySpin.PixelFormat_Mono8
+                    self.PySpin_DisplayPixelFormatString = 'Mono8'
+                    self.PySpin_DisplayPixelFormat = self.PySpin_OutPixelFormat
+                    
                 elif self.cameraProperties.pixelFormat == 'Mono16':
                     self.isRGBcamera_ = False;                   
                     streamProperties.format = ImageFormat.Mono16
                     self.PySpin_PixelFormat = PySpin.PixelFormat_Mono16
                     self.PySpin_OutPixelFormat = self.PySpin_PixelFormat
+                    self.PySpin_DisplayPixelFormat = PySpin.PixelFormat_Mono8
+                    self.PySpin_DisplayPixelFormatString = 'Mono8'                    
+                    
                 elif self.cameraProperties.pixelFormat == 'BayerGR8':
                     self.isRGBcamera_ = True;                   
                     streamProperties.format = ImageFormat.RGB24
                     self.PySpin_PixelFormat = PySpin.PixelFormat_BayerGR8
                     self.PySpin_OutPixelFormat = self.PySpin_PixelFormat
+                    self.PySpin_DisplayPixelFormat = PySpin.PixelFormat_RGB8      
+                    self.PySpin_DisplayPixelFormatString = 'RGB8'
+
                 elif self.cameraProperties.pixelFormat == 'BayerGR12p':
                     self.isRGBcamera_ = True;                   
                     streamProperties.format = ImageFormat.RGB24
                     self.PySpin_PixelFormat = PySpin.PixelFormat_BayerGR12p
                     self.PySpin_OutPixelFormat = self.PySpin_PixelFormat
+                    self.PySpin_DisplayPixelFormat = PySpin.PixelFormat_RGB8      
+                    self.PySpin_DisplayPixelFormatString = 'RGB8'
+                    
                 elif self.cameraProperties.pixelFormat == 'BayerGR12Packed':
                     self.isRGBcamera_ = True;                   
                     streamProperties.format = ImageFormat.RGB24
                     self.PySpin_PixelFormat = PySpin.PixelFormat_BayerGR12Packed
                     self.PySpin_OutPixelFormat = self.PySpin_PixelFormat
+                    self.PySpin_DisplayPixelFormat = PySpin.PixelFormat_RGB8
+                    self.PySpin_DisplayPixelFormatString = 'RGB8'
+                    
                 elif self.cameraProperties.pixelFormat == 'BayerGR16':
                     self.isRGBcamera_ = True;                   
                     streamProperties.format = ImageFormat.RGB24
                     self.PySpin_PixelFormat = PySpin.PixelFormat_BayerGR16
                     self.PySpin_OutPixelFormat = self.PySpin_PixelFormat
+                    self.PySpin_DisplayPixelFormat = PySpin.PixelFormat_RGB8      
+                    self.PySpin_DisplayPixelFormatString = 'RGB8'
+                    
                 elif self.cameraProperties.pixelFormat == 'YCbCr411_8_CbYYCrYY':
                     self.isRGBcamera_ = True;                   
                     streamProperties.format = ImageFormat.RGB24
                     self.PySpin_PixelFormat = PySpin.PixelFormat_YCbCr411_8_CbYYCrYY
                     self.PySpin_OutPixelFormat = self.PySpin_PixelFormat
+                    self.PySpin_DisplayPixelFormat = PySpin.PixelFormat_RGB8      
+                    self.PySpin_DisplayPixelFormatString = 'RGB8'
+                    
                 elif self.cameraProperties.pixelFormat == 'YCbCr422_8_CbYCrY':
                     self.isRGBcamera_ = True;                   
                     streamProperties.format = ImageFormat.RGB24
                     self.PySpin_PixelFormat = PySpin.PixelFormat_YCbCr422_8_CbYCrY
                     self.PySpin_OutPixelFormat = self.PySpin_PixelFormat
+                    self.PySpin_DisplayPixelFormat = PySpin.PixelFormat_RGB8      
+                    self.PySpin_DisplayPixelFormatString = 'RGB8'
+                    
                 elif self.cameraProperties.pixelFormat == 'YCbCr8_CbYCr':
                     self.isRGBcamera_ = True;                   
                     streamProperties.format = ImageFormat.RGB24
                     self.PySpin_PixelFormat = PySpin.PixelFormat_YCbCr8_CbYCr
-                    self.PySpin_OutPixelFormat = PySpin.PixelFormat_RGB8
+                    self.PySpin_OutPixelFormat = PySpin.PixelFormat_YCbCr8_CbYCr
                     self.PySpin_OutPixelFormatString = 'RGB8'
+                    self.PySpin_DisplayPixelFormat = PySpin.PixelFormat_RGB8
+                    self.PySpin_DisplayPixelFormatString = 'RGB8'
+                    
                 else:
                    print('The following pixelformat is not yet handled: %s' % current_pixelFormat)                
                 
@@ -361,13 +403,25 @@ class SpinnakerCamera:
                         #frameQueue_.push_back(frame);
                         
                         # self.PySpin_PixelFormat is configured in init stream above  
+                        # this should affect writing to file only...
                         if self.requested_pixelformat == self.PySpin_OutPixelFormatString:
                             self.frameQueue_.append(frame.Convert(self.PySpin_OutPixelFormat, PySpin.NO_COLOR_PROCESSING))
-                            print('PySpin.NO_COLOR_PROCESSING: %s' % PySpin.NO_COLOR_PROCESSING)
+                            #print('PySpin.NO_COLOR_PROCESSING: %s' % PySpin.NO_COLOR_PROCESSING)
                         else:
                             self.frameQueue_.append(frame.Convert(self.PySpin_OutPixelFormat, PySpin.HQ_LINEAR))
-                            print('PySpin.HQ_LINEAR: %s' % PySpin.HQ_LINEAR)
-                                              
+                            #print('PySpin.HQ_LINEAR: %s' % PySpin.HQ_LINEAR)
+                    
+                    # convert image for display purposes?
+                    #print('self.PySpin_DisplayPixelFormatString: %s' % self.PySpin_DisplayPixelFormatString)
+                    #print('self.cameraProperties.pixelFormat: %s' % self.cameraProperties.pixelFormat)
+                    if self.PySpin_DisplayPixelFormatString != self.cameraProperties.pixelFormat:
+                        #print('Displaying as different format from capture')
+                        tmpframeBuf = frame.Convert(self.PySpin_DisplayPixelFormat, PySpin.HQ_LINEAR)
+                        frameBuf = tmpframeBuf.GetData()
+                    #else:
+                        #print('Doh, ...')
+
+                          
                     frame.Release();
                     i += 1;
                     #if (i >= 2)
