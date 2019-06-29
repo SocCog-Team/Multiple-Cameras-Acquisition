@@ -222,10 +222,8 @@ class SpinnakerCamera:
                     self.PySpin_PixelFormat = PySpin.PixelFormat_RGB8
                     self.PySpin_OutPixelFormat = self.PySpin_PixelFormat
                     self.PySpin_DisplayPixelFormat = self.PySpin_OutPixelFormat
-#                    streamProperties.format = ImageFormat.YUV24
-                    #streamProperties.format = ImageFormat.MONO8 # for testing mono mode
                     
-                elif self.cameraProperties.pixelFormat == 'Mono8': #if camera is not color (C), set Type to mono just in case
+                elif self.cameraProperties.pixelFormat == 'Mono8':
                     self.isRGBcamera_ = False
                     streamProperties.format = ImageFormat.MONO8
                     self.PySpin_PixelFormat = PySpin.PixelFormat_Mono8
@@ -418,9 +416,6 @@ class SpinnakerCamera:
                         #print('Displaying as different format from capture')
                         tmpframeBuf = frame.Convert(self.PySpin_DisplayPixelFormat, PySpin.HQ_LINEAR)
                         frameBuf = tmpframeBuf.GetData()
-                    #else:
-                        #print('Doh, ...')
-
                           
                     frame.Release();
                     i += 1;
