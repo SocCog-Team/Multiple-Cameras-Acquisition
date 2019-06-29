@@ -65,6 +65,8 @@ class VideoAcquisitionThread(threading.Thread):
                     if result == 0:
                         if self.streamProperties_.format == ImageFormat.RGB24:
                             self.videoDisplay_.showRGB(self.streamProperties_.width, self.streamProperties_.height, self.frameBuffer_)
+                        elif self.streamProperties_.format == ImageFormat.YCbCr:
+                            self.videoDisplay_.showCbYCr(self.streamProperties_.width, self.streamProperties_.height, self.frameBuffer_)
                         else:
                             self.videoDisplay_.showMono(self.streamProperties_.width, self.streamProperties_.height, self.frameBuffer_)
                         #image = Image.frombytes(self.streamProperties_.format, (self.streamProperties_.width, self.streamProperties_.height), self.frameBuffer_, 'raw')

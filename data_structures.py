@@ -10,6 +10,7 @@ class ImageFormat:
     RGB24 = 'RGB'
     MONO8 = 'L'
     Mono16 = 'Mono16'
+    YCbCr = 'YCbCr'
 
 class StreamProperties: 
     def __init__(self, width, height, fps, imageFormat = ImageFormat.MONO8):
@@ -22,8 +23,8 @@ class StreamProperties:
         frameSize = self.width*self.height
         if self.format == ImageFormat.RGB24:
             frameSize *= 3
-        if self.format == ImageFormat.Mono16:
-            frameSize *= 2
+        if self.format == ImageFormat.YCbCr:
+            frameSize *= 3
         frameSize += 512 # for non-standart frame sizes
         return frameSize      
     

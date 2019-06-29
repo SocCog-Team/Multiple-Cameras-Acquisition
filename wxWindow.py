@@ -36,6 +36,7 @@ class VideoPanel(wx.Panel):
         self.rotationAngle_ = 0
         self.updateForbidden_ = False
         self.update()
+        self.COLOR = None
             
     def update(self):
         if self.updateForbidden_:
@@ -64,6 +65,27 @@ class VideoPanel(wx.Panel):
                 imageMono = self.rotate(imageMono)   
             bufferRGB = imageMono.convert('RGB').tobytes()
             newBitmap = wx.Bitmap.FromBuffer(width, height, bufferRGB)
+            
+
+#        if self.COLOR == 'RGB':
+#            print('RGB')
+#            newBitmap = wx.Bitmap.FromBuffer(width, height, buffer)                                    
+#            if self.rotationAngle_ != ImageRotation.ANGLE0:
+#                rotatedImage = self.rotate(newBitmap.ConvertToImage())
+#                newBitmap = rotatedImage.ConvertToBitmap()
+#        elif self.COLOR == 'CbYCr':
+#            imageCbYCr = Image.frombuffer('YCbCr', (width, height), buffer, 'raw', 'YCbCr', 0, 1)
+#            if self.rotationAngle_ != ImageRotation.ANGLE0:
+#                imageCbYCr = self.rotate(imageCbYCr)   
+#            bufferRGB = imageCbYCr.convert('RGB').tobytes()
+#            newBitmap = wx.Bitmap.FromBuffer(width, height, bufferRGB)                  
+#        else: 
+#            imageMono = Image.frombuffer('L', (width, height), buffer, 'raw', 'L', 0, 1)
+#            if self.rotationAngle_ != ImageRotation.ANGLE0:
+#                imageMono = self.rotate(imageMono)   
+#            bufferRGB = imageMono.convert('RGB').tobytes()
+#            newBitmap = wx.Bitmap.FromBuffer(width, height, bufferRGB)  
+            
         if self.needScale_:            
             self.bitmap_ = self.scaleToWindow(newBitmap)
         else:
@@ -102,11 +124,17 @@ class VideoDisplay(wx.Frame):
         self.Destroy()       
     
     def showRGB(self, width, height, buffer):
+        self.COLOR = 'RGB'
         if self.panel_ != None:
             self.panel_.showNew(width, height, buffer, isRGB = True)
 
+    def showCbYCr(self, width, height, buffer):
+        self.COLOR = 'CbYCr'
+        if self.panel_ != None:
+            self.panel_.showNew(width, height, buffer, isRGB = True)
 
     def showMono(self, width, height, buffer):
+        self.COLOR = 'Mono'
         if self.panel_ != None:
             self.panel_.showNew(width, height, buffer, isRGB = False)
         
