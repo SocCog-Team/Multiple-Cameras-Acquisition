@@ -8,7 +8,6 @@ from collections import deque
 import configparser
 from data_structures import ImageFormat, StreamProperties, CameraProperties, DisplayProperties, CaptureProperties
 import datetime
-from acquisition_ini import AcquisitionINI
 #from SpinnakerControl import SpinnakerControl 
 
 
@@ -181,7 +180,7 @@ class SpinnakerCamera:
             if deviceModel == None:
                 return -1, None
             print('%s' % deviceModel)
-            cameraType = deviceModel[-1]
+            #cameraType = deviceModel[-1]
                   
             nodePixelFormat = PySpin.CEnumerationPtr(nodemap.GetNode('PixelFormat'))
 
