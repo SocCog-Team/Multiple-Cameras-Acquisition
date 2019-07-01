@@ -122,4 +122,5 @@ class VideoAcquisitionControl(MainWindow):
             cameraName = self.videoControl_.names_[i]
             cameraProperties = self.iniFile_.getCameraProperties(cameraName)
             displayProperties = self.iniFile_.getDisplayProperties(cameraName)
-            self.videoControl_.setParameters(i, cameraProperties, displayProperties)              
+            captureProperties = self.iniFile_.getCaptureProperties(cameraName)
+            self.videoControl_.setParameters(i, cameraProperties, displayProperties, captureProperties)              

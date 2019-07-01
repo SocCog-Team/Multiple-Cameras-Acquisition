@@ -5,7 +5,7 @@ class for reading/writing cameras configurations and display settings to ini fil
 @author: taskcontroller
 """
 import configparser
-from data_structures import CameraProperties, DisplayProperties
+from data_structures import CameraProperties, DisplayProperties, CaptureProperties
 
 class AcquisitionINI:
     def __init__(self):
@@ -13,6 +13,7 @@ class AcquisitionINI:
         self.defaultSectionTitle_ = 'Default'
         self.cameraSubsectionTitle_ = 'Camera'
         self.displaySubsectionTitle_ = 'Display'
+        self.captureSubsectionTitle_ = 'Capture'
         
         self.config_ = configparser.RawConfigParser()
         self.config_.optionxform = lambda option: option # switch to case-preserving mode 
@@ -32,6 +33,8 @@ class AcquisitionINI:
                 correctLabels = CameraProperties._fields
             elif subsection == self.displaySubsectionTitle_:             
                 correctLabels = DisplayProperties._fields
+            elif subsection == self.captureSubsectionTitle_:             
+                correctLabels = CaptureProperties._fields
             else:
                 correctLabels = []   
             if labels != correctLabels:   
@@ -51,8 +54,11 @@ class AcquisitionINI:
             elif subsection == self.displaySubsectionTitle_:# if Camera subsection is absent ...
                 if deviceName == self.defaultSectionTitle_: # ... for default section - recreate
                     defaultProperties = DisplayProperties()
-                else:                                       # ... otherwise - copy from default section
-                    defaultProperties = self.getDisplayProperties(self.defaultSectionTitle_)
+            elif subsection == self.displaySubsectionTitle_:# if Camera subsection is absent ...
+                if deviceName == self.captureSubsectionTitle_: # ... for default section - recreate
+                    defaultProperties = CaptureProperties()                
+            else:                                       # ... otherwise - copy from default section
+                    defaultProperties = self.getCaptureProperties(self.defaultSectionTitle_)
             
             iniFileLabels = defaultProperties._fields
             iniFileEntries = list(defaultProperties)
@@ -74,6 +80,7 @@ class AcquisitionINI:
             print('No INI file found, recreated')
         self.checkAndRecreateSection(self.defaultSectionTitle_, self.cameraSubsectionTitle_)
         self.checkAndRecreateSection(self.defaultSectionTitle_, self.displaySubsectionTitle_)        
+        self.checkAndRecreateSection(self.defaultSectionTitle_, self.captureSubsectionTitle_)        
         
     
     # Returns a list of camera options  
@@ -87,6 +94,8 @@ class AcquisitionINI:
             properties = CameraProperties(*entries)
         elif subsection == self.displaySubsectionTitle_:             
             properties = DisplayProperties(*entries) 
+        elif subsection == self.captureSubsectionTitle_ :             
+            properties = CaptureProperties(*entries)
         else:
             properties = None
             
@@ -102,3 +111,9 @@ class AcquisitionINI:
     # Returns a namedtuple of display options  
     def getDisplayProperties(self, deviceName):
         return self.getProperties(deviceName, self.displaySubsectionTitle_)
+
+    # Returns a namedtuple of capture options  
+    def getCaptureProperties(self, deviceName):
+        return self.getProperties(deviceName, self.captureSubsectionTitle_)
+    
+    

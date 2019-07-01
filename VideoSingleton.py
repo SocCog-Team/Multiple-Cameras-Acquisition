@@ -109,7 +109,7 @@ class VideoSingleton:
     # float gain - Increase of the camera brightness (equivalent to ISO)
     #              Should be kept low.
     # output: double resultedFrameRate
-    def setParameters(self, cameraProperties, displayProperties):
+    def setParameters(self, cameraProperties, displayProperties, captureProperties):
         self.videoDisplay_.setScaling(displayProperties.stretch)
         self.videoDisplay_.setImageRotation(displayProperties.rotation)
         self.videoDisplay_.resize(displayProperties.windowWidth, displayProperties.windowHeight)

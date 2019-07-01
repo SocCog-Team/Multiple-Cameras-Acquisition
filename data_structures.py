@@ -68,8 +68,8 @@ class CameraProperties(namedtuple('CameraProperties', ['fps', 'gain', 'exposure'
         return self
         
         
-class DisplayProperties(namedtuple('DisplayProperties', ['stretch', 'rotation', 'windowWidth', 'windowHeight'])): 
-    def __new__(cls, stretch = True, rotation = 0, windowWidth = 640, windowHeight = 512):
+class DisplayProperties(namedtuple('DisplayProperties', ['stretch', 'rotation', 'windowWidth', 'windowHeight', 'pixelFormat'])): 
+    def __new__(cls, stretch = True, rotation = 0, windowWidth = 1280, windowHeight = 1024, pixelFormat = 'Mono8'):
         try:
             stretch = bool(stretch)
         except ValueError:
@@ -89,6 +89,28 @@ class DisplayProperties(namedtuple('DisplayProperties', ['stretch', 'rotation', 
             windowHeight = int(windowHeight)
         except ValueError:
             raise ValueError('windowHeight value ' + str(windowHeight) + ' in ini-file has incorrect format!')
-        self = super().__new__(cls, stretch, rotation, windowWidth, windowHeight)
+            
+        try:
+            pixelFormat = str(pixelFormat)
+        except ValueError:
+            raise ValueError('pixelFormat value ' + str(pixelFormat) + ' in ini-file has incorrect format!')              
+            
+        self = super().__new__(cls, stretch, rotation, windowWidth, windowHeight, pixelFormat)
         return self
-     
+    
+    
+class CaptureProperties(namedtuple('CaptureProperties', ['pixelFormat', 'outputPath'])):
+    def __new__(cls, pixelFormat = 'Mono8', outputPath = 'D:/'):            
+        try:
+            pixelFormat = str(pixelFormat)
+        except ValueError:
+            raise ValueError('pixelFormat value ' + str(pixelFormat) + ' in ini-file has incorrect format!')              
+
+        try:
+            outputPath = str(outputPath)
+        except ValueError:
+            raise ValueError('outputPath value ' + str(outputPath) + ' in ini-file has incorrect format!')  
+          
+        self = super().__new__(cls, pixelFormat, outputPath)
+        return self
+            
