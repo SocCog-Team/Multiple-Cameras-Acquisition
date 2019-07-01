@@ -11,10 +11,7 @@ code for acquiring video from several FLIR Chamelion 3 cameras
 
 - change the interpretation of -1 to mean Auto for gain and exposure time, add a toggle for the white balance add a per camera save path and file prefix/suffix
 
-- add pixelformat as a configurable to the ini file (also abstract the additional pixelformat dependent parameters like size of the backing buffer and the pixelformat enumeration values). Proof of concept works, needs cleaning up. Cleaned up, currently only RGB8 and Mono8 can be displayed without additional conversions, all other formats will be costlier to process. See SpinnakerCamera InitStream for the currently hardcoded table of capture and display conversions (this table needs to move into a function/class that extracts the matching PySpin.PixelFormat for camerProperties/displayProperties/CaptureProperties.PixelFormat, that is get the enum value from a given string with error checking).
-
-- add a new record type in the ini file to configure the capture process (pixelformat, output directory, out put type, video options)
-
+                                                    
 # Code structure:
 
 1. Principal classes
