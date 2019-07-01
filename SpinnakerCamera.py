@@ -186,37 +186,8 @@ class SpinnakerCamera:
             nodePixelFormat = PySpin.CEnumerationPtr(nodemap.GetNode('PixelFormat'))
 
             if PySpin.IsAvailable(nodePixelFormat) and PySpin.IsWritable(nodePixelFormat):
-                # the goal is simply to extract the current camera's configured pixelformat from acquisition.ini
-                cameraName = self.getName()
-                cameraModel = self.getModel()
-                # re-create the key
-                sectionFullName = cameraModel + ", ID " + cameraName# + ", Camera"
-                print('acquisition.ini sectionFullName: %s' % sectionFullName)
-                                
-                # the ini file was already checked, so we simply assume a clean ini file
-                self.config_ = configparser.RawConfigParser()
-                self.config_.optionxform = lambda option: option # switch to case-preserving mode 
-                self.config_.read("acquisition.ini")
-                if self.config_.has_section(sectionFullName + ", Camera"):
-                    labels, entries = zip(*self.config_.items(sectionFullName + ", Camera")) 
-                else:
-                    print('Could nor read sectionFullName: %s' % sectionFullName + ", Camera")                
-                self.cameraProperties = CameraProperties(*entries)
-
-                if self.config_.has_section(sectionFullName + ", Display"):
-                    labels, entries = zip(*self.config_.items(sectionFullName + ", Display")) 
-                else:
-                    print('Could nor read sectionFullName: %s' % sectionFullName + ", Display")                
-                self.displayProperties = DisplayProperties(*entries)
-
-                if self.config_.has_section(sectionFullName + ", Capture"):
-                    labels, entries = zip(*self.config_.items(sectionFullName + ", Capture")) 
-                else:
-                    print('Could nor read sectionFullName: %s' % sectionFullName + ", Capture")                
-                self.captureProperties = CaptureProperties(*entries)
-
-                print('self.cameraProperties.pixelFormat: %s' % self.cameraProperties.pixelFormat)
-                del self.config_
+                # the goal is simply to extract the current camera's/display's/capture's configured pixelformat from acquisition.ini
+                self.cameraProperties, self.displayProperties, self.captureProperties = self.getSubsectionsFromIniFileForCurrentCamera()
  
                 #this is now generic for all pixelformats
                 nodePixelFormatValue = PySpin.CEnumEntryPtr(nodePixelFormat.GetEntryByName(self.cameraProperties.pixelFormat))              
@@ -227,15 +198,16 @@ class SpinnakerCamera:
                 self.PySpin_DisplayPixelFormatString = self.displayProperties.pixelFormat                
                 self.PySpin_DisplayPixelFormat, isRGBcamera_, streamProperties_format = self.getPySpinPixelTypeEnumValueFromString(self.displayProperties.pixelFormat)
                 #print('PySpin_DisplayPixelFormat: %s' % str(self.PySpin_DisplayPixelFormat))
-                if (self.displayProperties.pixelFormat == 'RGB8') or (self.displayProperties.pixelFormat == 'Mono8'):
-                    print('Requested display pixelformat supported: %s' % self.displayProperties.pixelFormat)
-                else:
-                    print('ATM only RGB8 and Mono8 are supported as display pixel formats, not %s' % self.displayProperties.pixelFormat)
                 if self.displayProperties.pixelFormat != self.cameraProperties.pixelFormat:
                     print('Camera and display pixelformat differ, requiring costly conversion, consider setting display pixelformat to camera pixelformat if possible.')
                     print('self.cameraProperties.pixelFormat: %s' % self.cameraProperties.pixelFormat)
                     print('self.displayProperties.pixelFormat: %s' % self.displayProperties.pixelFormat)
-                    
+
+                if (self.displayProperties.pixelFormat == 'RGB8') or (self.displayProperties.pixelFormat == 'Mono8'):
+                    print('Requested display pixelformat supported: %s' % self.displayProperties.pixelFormat)
+                else:
+                    print('display pixel format %s' % self.displayProperties.pixelFormat, 'not supported (only RGB8 and Mono8) Aborting...')
+                    return -1, None
                     
                 #CAPTURE
                 self.PySpin_CapturePixelFormatString = self.captureProperties.pixelFormat
@@ -250,96 +222,6 @@ class SpinnakerCamera:
                 self.PySpin_CameraPixelFormat, self.isRGBcamera_, streamProperties.format = self.getPySpinPixelTypeEnumValueFromString(self.cameraProperties.pixelFormat)
 #                print('PySpin_CameraPixelFormat: %s' % self.PySpin_CameraPixelFormat)
 
-
-                
-#                if self.cameraProperties.pixelFormat == 'RGB8':
-#                    self.isRGBcamera_ = True;                   
-#                    streamProperties.format = ImageFormat.RGB24
-#                    self.PySpin_PixelFormat = PySpin.PixelFormat_RGB8
-#                    self.PySpin_CapturePixelFormat = self.PySpin_PixelFormat
-#                    self.PySpin_DisplayPixelFormat = self.PySpin_CapturePixelFormat
-#                    
-#                elif self.cameraProperties.pixelFormat == 'Mono8':
-#                    self.isRGBcamera_ = False
-#                    streamProperties.format = ImageFormat.MONO8
-#                    self.PySpin_PixelFormat = PySpin.PixelFormat_Mono8
-#                    self.PySpin_CapturePixelFormat = self.PySpin_PixelFormat
-#                    self.PySpin_DisplayPixelFormat = PySpin.PixelFormat_Mono8
-#                    
-#                elif self.cameraProperties.pixelFormat == 'Mono12Packed':
-#                    self.isRGBcamera_ = False;                   
-#                    streamProperties.format = ImageFormat.RGB24
-#                    self.PySpin_PixelFormat = PySpin.PixelFormat_Mono12Packed
-#                    self.PySpin_CapturePixelFormat = self.PySpin_PixelFormat
-#                    self.PySpin_DisplayPixelFormat = PySpin.PixelFormat_Mono8
-#                    
-#                elif self.cameraProperties.pixelFormat == 'Mono12p':
-#                    self.isRGBcamera_ = False;                   
-#                    streamProperties.format = ImageFormat.RGB24
-#                    self.PySpin_PixelFormat = PySpin.PixelFormat_Mono12p
-#                    self.PySpin_CapturePixelFormat = self.PySpin_PixelFormat
-#                    self.PySpin_DisplayPixelFormat = PySpin.PixelFormat_Mono8
-#                    
-#                elif self.cameraProperties.pixelFormat == 'Mono16':
-#                    self.isRGBcamera_ = False;                   
-#                    streamProperties.format = ImageFormat.Mono16
-#                    self.PySpin_PixelFormat = PySpin.PixelFormat_Mono16
-#                    self.PySpin_CapturePixelFormat = self.PySpin_PixelFormat
-#                    self.PySpin_DisplayPixelFormat = PySpin.PixelFormat_Mono8
-#                    
-#                elif self.cameraProperties.pixelFormat == 'BayerGR8':
-#                    self.isRGBcamera_ = True;                   
-#                    streamProperties.format = ImageFormat.RGB24
-#                    self.PySpin_PixelFormat = PySpin.PixelFormat_BayerGR8
-#                    self.PySpin_CapturePixelFormat = self.PySpin_PixelFormat
-#                    self.PySpin_DisplayPixelFormat = PySpin.PixelFormat_RGB8      
-#
-#                elif self.cameraProperties.pixelFormat == 'BayerGR12p':
-#                    self.isRGBcamera_ = True;                   
-#                    streamProperties.format = ImageFormat.RGB24
-#                    self.PySpin_PixelFormat = PySpin.PixelFormat_BayerGR12p
-#                    self.PySpin_CapturePixelFormat = self.PySpin_PixelFormat
-#                    self.PySpin_DisplayPixelFormat = PySpin.PixelFormat_RGB8      
-#                    
-#                elif self.cameraProperties.pixelFormat == 'BayerGR12Packed':
-#                    self.isRGBcamera_ = True;                   
-#                    streamProperties.format = ImageFormat.RGB24
-#                    self.PySpin_PixelFormat = PySpin.PixelFormat_BayerGR12Packed
-#                    self.PySpin_CapturePixelFormat = self.PySpin_PixelFormat
-#                    self.PySpin_DisplayPixelFormat = PySpin.PixelFormat_RGB8
-#                    
-#                elif self.cameraProperties.pixelFormat == 'BayerGR16':
-#                    self.isRGBcamera_ = True;                   
-#                    streamProperties.format = ImageFormat.RGB24
-#                    self.PySpin_PixelFormat = PySpin.PixelFormat_BayerGR16
-#                    self.PySpin_CapturePixelFormat = self.PySpin_PixelFormat
-#                    self.PySpin_DisplayPixelFormat = PySpin.PixelFormat_RGB8      
-#                    
-#                elif self.cameraProperties.pixelFormat == 'YCbCr411_8_CbYYCrYY':
-#                    self.isRGBcamera_ = True;                   
-#                    streamProperties.format = ImageFormat.RGB24
-#                    self.PySpin_PixelFormat = PySpin.PixelFormat_YCbCr411_8_CbYYCrYY
-#                    self.PySpin_CapturePixelFormat = self.PySpin_PixelFormat
-#                    self.PySpin_DisplayPixelFormat = PySpin.PixelFormat_RGB8      
-#                    
-#                elif self.cameraProperties.pixelFormat == 'YCbCr422_8_CbYCrY':
-#                    self.isRGBcamera_ = True;                   
-#                    streamProperties.format = ImageFormat.RGB24
-#                    self.PySpin_PixelFormat = PySpin.PixelFormat_YCbCr422_8_CbYCrY
-#                    self.PySpin_CapturePixelFormat = self.PySpin_PixelFormat
-#                    self.PySpin_DisplayPixelFormat = PySpin.PixelFormat_RGB8      
-#                    
-#                elif self.cameraProperties.pixelFormat == 'YCbCr8_CbYCr':
-#                    self.isRGBcamera_ = True;                   
-#                    streamProperties.format = ImageFormat.RGB24
-#                    self.PySpin_PixelFormat = self.PySpin_PixelFormat
-#                    self.PySpin_CapturePixelFormat = PySpin.PixelFormat_YCbCr8_CbYCr
-#                    self.PySpin_CapturePixelFormatString = 'RGB8'
-#                    self.PySpin_DisplayPixelFormat = PySpin.PixelFormat_RGB8
-#                    
-#                else:
-#                   print('The following pixelformat is not yet handled: %s' % self.cameraProperties.pixelFormat)                
-#                
                 
                 # Retrieve the desired entry node from the enumeration node
                 if PySpin.IsAvailable(nodePixelFormatValue) and PySpin.IsReadable(nodePixelFormatValue):
@@ -529,7 +411,19 @@ class SpinnakerCamera:
             #! Create a unique filename and configure file parameters
             self.aviRecorder_ = PySpin.SpinVideo()
             
-            aviFilename = 'video%s-%s' % (deviceSerialNumber, datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
+            aviFilename = '%s%sSN%s.%s.%s' % (self.captureProperties.outputPath, self.captureProperties.cameraPrefix , deviceSerialNumber, datetime.datetime.now().strftime("%Y%m%dT%H%M%S"), self.captureProperties.cameraSuffix)
+            
+            # use the configured options
+            if self.captureProperties.aviType == 'UNCOMPRESSED':
+                self.aviType_ = self.AviType.UNCOMPRESSED
+            elif self.captureProperties.aviType == 'MJPG':
+                self.aviType_ = self.AviType.MJPG
+            elif self.captureProperties.aviType == 'H264':
+                self.aviType_ = self.AviType.H264
+            else:
+                print('Unknown aviType (', self.captureProperties.aviType, ') requested, only UNCOMPRESSED, MJPG and H264 supported')
+        
+
 
             if self.aviType_ == self.AviType.UNCOMPRESSED:
                 #aviFilename = 'SaveToAvi-Uncompressed-%s' % deviceSerialNumber
@@ -538,12 +432,14 @@ class SpinnakerCamera:
             elif self.aviType_ == self.AviType.MJPG:
                 #aviFilename = 'SaveToAvi-MJPG-%s' % (deviceSerialNumber,)   
                 option = PySpin.MJPGOption()
-                option.quality = 75
+                #option.quality = 75
+                option.quality = self.captureProperties.MJPGQuality
     
             elif self.aviType_ == self.AviType.H264:
                 #aviFilename = 'SaveToAvi-H264-%s' % deviceSerialNumber    
                 option = PySpin.H264Option()
-                option.bitrate = 1000000
+                #option.bitrate = 1000000
+                option.bitrate = self.captureProperties.H264BitRate
                 option.height = self.camera_.Height.GetValue()
                 option.width = self.camera_.Width.GetValue()
     
@@ -811,3 +707,40 @@ class SpinnakerCamera:
 #        print('getPySpinPixelTypeEnumValueFromString: PySpinPixelTypeEnumValue: %s' % PySpinPixelTypeEnumValue)
            
         return PySpinPixelTypeEnumValue, isRGBcamera_, streamProperties_format
+
+
+    def getSubsectionsFromIniFileForCurrentCamera(self):
+        # This should be folded back into acquisiion_ini to avaoid configuring the ini file name in two positions....
+        
+        cameraName = self.getName()
+        cameraModel = self.getModel()
+        # re-create the key
+        sectionFullName = cameraModel + ", ID " + cameraName# + ", Camera"
+        print('acquisition.ini sectionFullName: %s' % sectionFullName)
+                        
+        # the ini file was already checked, so we simply assume a clean ini file
+        self.config_ = configparser.RawConfigParser()
+        self.config_.optionxform = lambda option: option # switch to case-preserving mode 
+        self.config_.read("acquisition.ini")
+        if self.config_.has_section(sectionFullName + ", Camera"):
+            labels, entries = zip(*self.config_.items(sectionFullName + ", Camera")) 
+        else:
+            print('Could nor read sectionFullName: %s' % sectionFullName + ", Camera")                
+        cameraProperties = CameraProperties(*entries)
+
+        if self.config_.has_section(sectionFullName + ", Display"):
+            labels, entries = zip(*self.config_.items(sectionFullName + ", Display")) 
+        else:
+            print('Could nor read sectionFullName: %s' % sectionFullName + ", Display")                
+        displayProperties = DisplayProperties(*entries)
+
+        if self.config_.has_section(sectionFullName + ", Capture"):
+            labels, entries = zip(*self.config_.items(sectionFullName + ", Capture")) 
+        else:
+            print('Could nor read sectionFullName: %s' % sectionFullName + ", Capture")                
+        captureProperties = CaptureProperties(*entries)
+
+        #print('self.cameraProperties.pixelFormat: %s' % cameraProperties.pixelFormat)
+        del self.config_
+        
+        return cameraProperties, displayProperties, captureProperties

@@ -99,8 +99,8 @@ class DisplayProperties(namedtuple('DisplayProperties', ['stretch', 'rotation', 
         return self
     
     
-class CaptureProperties(namedtuple('CaptureProperties', ['pixelFormat', 'outputPath'])):
-    def __new__(cls, pixelFormat = 'Mono8', outputPath = 'D:/'):            
+class CaptureProperties(namedtuple('CaptureProperties', ['pixelFormat', 'outputPath', 'cameraPrefix', 'cameraSuffix', 'aviType', 'MJPGQuality', 'H264BitRate'])):
+    def __new__(cls, pixelFormat = 'Mono8', outputPath = 'D:/', cameraPrefix = 'Camera_', cameraSuffix = '', aviType = 'MJPG', MJPGQuality = 75, H264BitRate = 1000000):            
         try:
             pixelFormat = str(pixelFormat)
         except ValueError:
@@ -110,7 +110,32 @@ class CaptureProperties(namedtuple('CaptureProperties', ['pixelFormat', 'outputP
             outputPath = str(outputPath)
         except ValueError:
             raise ValueError('outputPath value ' + str(outputPath) + ' in ini-file has incorrect format!')  
+
+        try:
+            cameraPrefix = str(cameraPrefix)
+        except ValueError:
+            raise ValueError('cameraPrefix value ' + str(cameraPrefix) + ' in ini-file has incorrect format!')  
+
+        try:
+            cameraSuffix = str(cameraSuffix)
+        except ValueError:
+            raise ValueError('cameraSuffix value ' + str(cameraSuffix) + ' in ini-file has incorrect format!')              
+
+        try:
+            aviType = str(aviType)
+        except ValueError:
+            raise ValueError('aviType value ' + str(aviType) + ' in ini-file has incorrect format!')
+
+        try:
+            MJPGQuality = int(MJPGQuality)
+        except ValueError:
+            raise ValueError('MJPGQuality value ' + str(MJPGQuality) + ' in ini-file has incorrect format!')                    
+
+        try:
+            H264BitRate = int(H264BitRate)
+        except ValueError:
+            raise ValueError('H264BitRate value ' + str(H264BitRate) + ' in ini-file has incorrect format!')                    
           
-        self = super().__new__(cls, pixelFormat, outputPath)
+        self = super().__new__(cls, pixelFormat, outputPath, cameraPrefix, cameraSuffix, aviType, MJPGQuality, H264BitRate)
         return self
             
