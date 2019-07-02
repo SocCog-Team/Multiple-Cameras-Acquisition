@@ -650,55 +650,60 @@ class SpinnakerCamera:
         PySpinPixelTypeEnumValue = -1 # Mono8 equals 1    
         isRGBcamera_ = False
         streamProperties_format = 'None'
+
+        current_PySpinPixelFormatEnumName = 'PixelFormat_' + PixelFormatString
+        PySpinPixelTypeEnumValue = getattr(PySpin, current_PySpinPixelFormatEnumName)
+        #print('DEBUG: getattr(PySpin, %s: %s' % (current_PySpinPixelFormatEnumName, PySpinPixelTypeEnumValue))
         
+        # use this to configure all relavant variables per pixelformat, ideally this gets removed completely
         if PixelFormatString == 'RGB8':
             isRGBcamera_ = True; 
             streamProperties_format = ImageFormat.RGB24
-            PySpinPixelTypeEnumValue = PySpin.PixelFormat_RGB8
+            #PySpinPixelTypeEnumValue = PySpin.PixelFormat_RGB8
         elif PixelFormatString == 'Mono8':
             isRGBcamera_ = False
             streamProperties_format = ImageFormat.MONO8
-            PySpinPixelTypeEnumValue = PySpin.PixelFormat_Mono8
+            #PySpinPixelTypeEnumValue = PySpin.PixelFormat_Mono8
         elif PixelFormatString == 'Mono12Packed':
             isRGBcamera_ = False;                   
             streamProperties_format = ImageFormat.RGB24
-            PySpinPixelTypeEnumValue = PySpin.PixelFormat_Mono12Packed
+            #PySpinPixelTypeEnumValue = PySpin.PixelFormat_Mono12Packed
         elif PixelFormatString == 'Mono12p':
             isRGBcamera_ = False;                   
             streamProperties_format = ImageFormat.RGB24
-            PySpinPixelTypeEnumValue = PySpin.PixelFormat_Mono12p
+            #PySpinPixelTypeEnumValue = PySpin.PixelFormat_Mono12p
         elif PixelFormatString == 'Mono16':
             isRGBcamera_ = False;                   
             streamProperties_format = ImageFormat.Mono16
-            PySpinPixelTypeEnumValue = PySpin.PixelFormat_Mono16
+            #PySpinPixelTypeEnumValue = PySpin.PixelFormat_Mono16
         elif PixelFormatString == 'BayerGR8':
             isRGBcamera_ = True;                   
             streamProperties_format = ImageFormat.RGB24
-            PySpinPixelTypeEnumValue = PySpin.PixelFormat_BayerGR8
+            #PySpinPixelTypeEnumValue = PySpin.PixelFormat_BayerGR8
         elif PixelFormatString == 'BayerGR12p':
             isRGBcamera_ = True;                   
             streamProperties_format = ImageFormat.RGB24
-            PySpinPixelTypeEnumValue = PySpin.PixelFormat_BayerGR12p
+            #PySpinPixelTypeEnumValue = PySpin.PixelFormat_BayerGR12p
         elif PixelFormatString == 'BayerGR12Packed':
             isRGBcamera_ = True;                   
             streamProperties_format = ImageFormat.RGB24
-            PySpinPixelTypeEnumValue = PySpin.PixelFormat_BayerGR12Packed
+            #PySpinPixelTypeEnumValue = PySpin.PixelFormat_BayerGR12Packed
         elif PixelFormatString == 'BayerGR16':
             isRGBcamera_ = True;                   
             streamProperties_format = ImageFormat.RGB24
-            PySpinPixelTypeEnumValue = PySpin.PixelFormat_BayerGR16
+            #PySpinPixelTypeEnumValue = PySpin.PixelFormat_BayerGR16
         elif PixelFormatString == 'YCbCr411_8_CbYYCrYY':
             isRGBcamera_ = True;                   
             streamProperties_format = ImageFormat.RGB24
-            PySpinPixelTypeEnumValue = PySpin.PixelFormat_YCbCr411_8_CbYYCrYY
+            #PySpinPixelTypeEnumValue = PySpin.PixelFormat_YCbCr411_8_CbYYCrYY
         elif PixelFormatString == 'YCbCr422_8_CbYCrY':
             isRGBcamera_ = True;                   
             streamProperties_format = ImageFormat.RGB24
-            PySpinPixelTypeEnumValue = PySpin.PixelFormat_YCbCr422_8_CbYCrY
+            #PySpinPixelTypeEnumValue = PySpin.PixelFormat_YCbCr422_8_CbYCrY
         elif PixelFormatString == 'YCbCr8_CbYCr':
             isRGBcamera_ = True;                   
             streamProperties_format = ImageFormat.RGB24
-            PySpinPixelTypeEnumValue = PySpin.PixelFormat_YCbCr8_CbYCr
+            #PySpinPixelTypeEnumValue = PySpin.PixelFormat_YCbCr8_CbYCr
         else:
            print('The following pixelformat is not yet handled: %s' % PixelFormatString)   
 
@@ -716,7 +721,7 @@ class SpinnakerCamera:
         # re-create the key
         sectionFullName = cameraModel + ", ID " + cameraName# + ", Camera"
         print('acquisition.ini sectionFullName: %s' % sectionFullName)
-                        
+        
         # the ini file was already checked, so we simply assume a clean ini file
         self.config_ = configparser.RawConfigParser()
         self.config_.optionxform = lambda option: option # switch to case-preserving mode 
