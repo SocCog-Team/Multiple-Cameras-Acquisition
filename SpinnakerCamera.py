@@ -38,7 +38,6 @@ class SpinnakerCamera:
     
         self.captureOn_ = False  # whether frames are captured into a file
         self.stopCaptureFlag_ = False # flag for stopping the capture
-        self.isRGBcamera_ = False 
         self.requested_pixelformat = None   #pixel format as configured in the ini file
         self.PySpin_CameraPixelFormat = None      # PySpins enumeration value for the configured pixelformat
 
@@ -195,7 +194,7 @@ class SpinnakerCamera:
                 
                 #DISPLAY
                 self.PySpin_DisplayPixelFormatString = self.displayProperties.pixelFormat                
-                self.PySpin_DisplayPixelFormat, isRGBcamera_, streamProperties_format = self.getPySpinPixelTypeEnumValueFromString(self.displayProperties.pixelFormat)
+                self.PySpin_DisplayPixelFormat, streamProperties_format = self.getPySpinPixelTypeEnumValueFromString(self.displayProperties.pixelFormat)
                 #print('PySpin_DisplayPixelFormat: %s' % str(self.PySpin_DisplayPixelFormat))
                 if self.displayProperties.pixelFormat != self.cameraProperties.pixelFormat:
                     print('Camera and display pixelformat differ, requiring costly conversion, consider setting display pixelformat to camera pixelformat if possible.')
@@ -210,7 +209,7 @@ class SpinnakerCamera:
                     
                 #CAPTURE
                 self.PySpin_CapturePixelFormatString = self.captureProperties.pixelFormat
-                self.PySpin_CapturePixelFormat, isRGBcamera_, streamProperties_format = self.getPySpinPixelTypeEnumValueFromString(self.captureProperties.pixelFormat)
+                self.PySpin_CapturePixelFormat, streamProperties_format = self.getPySpinPixelTypeEnumValueFromString(self.captureProperties.pixelFormat)
                 #print('PySpin_CapturePixelFormat: %s' % self.PySpin_CapturePixelFormat)
                 
                 if self.captureProperties.pixelFormat != self.cameraProperties.pixelFormat:
@@ -218,7 +217,7 @@ class SpinnakerCamera:
                     print('self.cameraProperties.pixelFormat: %s' % self.cameraProperties.pixelFormat)
                     print('self.captureProperties.pixelFormat: %s' % self.captureProperties.pixelFormat)
 
-                self.PySpin_CameraPixelFormat, self.isRGBcamera_, streamProperties.format = self.getPySpinPixelTypeEnumValueFromString(self.cameraProperties.pixelFormat)
+                self.PySpin_CameraPixelFormat, streamProperties.format = self.getPySpinPixelTypeEnumValueFromString(self.cameraProperties.pixelFormat)
 #                print('PySpin_CameraPixelFormat: %s' % self.PySpin_CameraPixelFormat)
 
                 
@@ -648,7 +647,6 @@ class SpinnakerCamera:
 
     def getPySpinPixelTypeEnumValueFromString(self, PixelFormatString):
         PySpinPixelTypeEnumValue = -1 # Mono8 equals 1    
-        isRGBcamera_ = False
         streamProperties_format = 'None'
 
         current_PySpinPixelFormatEnumName = 'PixelFormat_' + PixelFormatString
@@ -657,60 +655,37 @@ class SpinnakerCamera:
         
         # use this to configure all relavant variables per pixelformat, ideally this gets removed completely
         if PixelFormatString == 'RGB8':
-            isRGBcamera_ = True; 
             streamProperties_format = ImageFormat.RGB24
-            #PySpinPixelTypeEnumValue = PySpin.PixelFormat_RGB8
         elif PixelFormatString == 'Mono8':
-            isRGBcamera_ = False
             streamProperties_format = ImageFormat.MONO8
-            #PySpinPixelTypeEnumValue = PySpin.PixelFormat_Mono8
         elif PixelFormatString == 'Mono12Packed':
-            isRGBcamera_ = False;                   
             streamProperties_format = ImageFormat.RGB24
-            #PySpinPixelTypeEnumValue = PySpin.PixelFormat_Mono12Packed
         elif PixelFormatString == 'Mono12p':
-            isRGBcamera_ = False;                   
             streamProperties_format = ImageFormat.RGB24
-            #PySpinPixelTypeEnumValue = PySpin.PixelFormat_Mono12p
         elif PixelFormatString == 'Mono16':
-            isRGBcamera_ = False;                   
             streamProperties_format = ImageFormat.Mono16
-            #PySpinPixelTypeEnumValue = PySpin.PixelFormat_Mono16
         elif PixelFormatString == 'BayerGR8':
-            isRGBcamera_ = True;                   
             streamProperties_format = ImageFormat.RGB24
-            #PySpinPixelTypeEnumValue = PySpin.PixelFormat_BayerGR8
         elif PixelFormatString == 'BayerGR12p':
-            isRGBcamera_ = True;                   
             streamProperties_format = ImageFormat.RGB24
-            #PySpinPixelTypeEnumValue = PySpin.PixelFormat_BayerGR12p
         elif PixelFormatString == 'BayerGR12Packed':
-            isRGBcamera_ = True;                   
             streamProperties_format = ImageFormat.RGB24
-            #PySpinPixelTypeEnumValue = PySpin.PixelFormat_BayerGR12Packed
         elif PixelFormatString == 'BayerGR16':
-            isRGBcamera_ = True;                   
             streamProperties_format = ImageFormat.RGB24
-            #PySpinPixelTypeEnumValue = PySpin.PixelFormat_BayerGR16
         elif PixelFormatString == 'YCbCr411_8_CbYYCrYY':
-            isRGBcamera_ = True;                   
             streamProperties_format = ImageFormat.RGB24
-            #PySpinPixelTypeEnumValue = PySpin.PixelFormat_YCbCr411_8_CbYYCrYY
         elif PixelFormatString == 'YCbCr422_8_CbYCrY':
-            isRGBcamera_ = True;                   
             streamProperties_format = ImageFormat.RGB24
             #PySpinPixelTypeEnumValue = PySpin.PixelFormat_YCbCr422_8_CbYCrY
         elif PixelFormatString == 'YCbCr8_CbYCr':
-            isRGBcamera_ = True;                   
             streamProperties_format = ImageFormat.RGB24
-            #PySpinPixelTypeEnumValue = PySpin.PixelFormat_YCbCr8_CbYCr
         else:
            print('The following pixelformat is not yet handled: %s' % PixelFormatString)   
 
 #        print('getPySpinPixelTypeEnumValueFromString: PixelFormatString: %s' % PixelFormatString)
 #        print('getPySpinPixelTypeEnumValueFromString: PySpinPixelTypeEnumValue: %s' % PySpinPixelTypeEnumValue)
-           
-        return PySpinPixelTypeEnumValue, isRGBcamera_, streamProperties_format
+   
+        return PySpinPixelTypeEnumValue, streamProperties_format
 
 
     def getSubsectionsFromIniFileForCurrentCamera(self):
