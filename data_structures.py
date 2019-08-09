@@ -139,3 +139,29 @@ class CaptureProperties(namedtuple('CaptureProperties', ['pixelFormat', 'outputP
         self = super().__new__(cls, pixelFormat, outputPath, cameraPrefix, cameraSuffix, aviType, MJPGQuality, H264BitRate)
         return self
             
+    
+class TriggerProperties(namedtuple('TriggerProperties', ['triggerMode', 'triggerSource', 'triggerOverlap', 'triggerActivation'])):
+    def __new__(cls, triggerMode = 'TriggerMode_Off', triggerSource = 'LineSource_Line3', triggerOverlap = 'TriggerOverlap_ReadOut', triggerActivation = 'TriggerActivation_FallingEdge'):            
+        try:
+            triggerMode = str(triggerMode)
+        except ValueError:
+            raise ValueError('triggerMode value ' + str(triggerMode) + ' in ini-file has incorrect format!')              
+
+        try:
+            triggerSource = str(triggerSource)
+        except ValueError:
+            raise ValueError('triggerSource value ' + str(triggerSource) + ' in ini-file has incorrect format!')  
+
+        try:
+            triggerOverlap = str(triggerOverlap)
+        except ValueError:
+            raise ValueError('triggerOverlap value ' + str(triggerOverlap) + ' in ini-file has incorrect format!')  
+
+        try:
+            triggerActivation = str(triggerActivation)
+        except ValueError:
+            raise ValueError('triggerActivation value ' + str(triggerActivation) + ' in ini-file has incorrect format!')              
+
+          
+        self = super().__new__(cls, triggerMode, triggerSource, triggerOverlap, triggerActivation)
+        return self    

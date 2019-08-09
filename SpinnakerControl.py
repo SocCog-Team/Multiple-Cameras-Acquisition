@@ -153,9 +153,9 @@ class SpinnakerControl:
 
 
     ## int index, CameraProperties &properties:
-    def setParameters(self, index, cameraProperties, displayProperties, captureProperties):
+    def setParameters(self, index, cameraProperties, displayProperties, captureProperties, triggerProperties):
         result = -1
         if (index < len(self.videoSources_) and (index >= 0)):
             print(cameraProperties.fps)
-            result = self.videoSources_[index].setParameters(cameraProperties, displayProperties, captureProperties)
+            result = self.videoSources_[index].setParameters(cameraProperties, displayProperties, captureProperties, triggerProperties)
         return result

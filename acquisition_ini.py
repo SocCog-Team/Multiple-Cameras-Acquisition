@@ -5,7 +5,7 @@ class for reading/writing cameras configurations and display settings to ini fil
 @author: taskcontroller
 """
 import configparser
-from data_structures import CameraProperties, DisplayProperties, CaptureProperties
+from data_structures import CameraProperties, DisplayProperties, CaptureProperties, TriggerProperties
 
 class AcquisitionINI:
     def __init__(self):
@@ -14,11 +14,11 @@ class AcquisitionINI:
         self.cameraSubsectionTitle_ = 'Camera'
         self.displaySubsectionTitle_ = 'Display'
         self.captureSubsectionTitle_ = 'Capture'
+        self.triggerSubsectionTitle_ = 'Trigger'
         
         self.config_ = configparser.RawConfigParser()
         self.config_.optionxform = lambda option: option # switch to case-preserving mode 
-
-
+        
     def __del__(self): 
         del self.config_
 
@@ -35,6 +35,8 @@ class AcquisitionINI:
                 correctLabels = DisplayProperties._fields
             elif subsection == self.captureSubsectionTitle_:             
                 correctLabels = CaptureProperties._fields
+            elif subsection == self.triggerSubsectionTitle_:             
+                correctLabels = TriggerProperties._fields
             else:
                 correctLabels = []   
             if labels != correctLabels:   
@@ -51,14 +53,24 @@ class AcquisitionINI:
                     defaultProperties = CameraProperties()   
                 else:                                       # ... otherwise - copy from default section
                     defaultProperties = self.getCameraProperties(self.defaultSectionTitle_)
-            elif subsection == self.displaySubsectionTitle_:# if Camera subsection is absent ...
+                    
+            elif subsection == self.displaySubsectionTitle_:# if Display subsection is absent ...
                 if deviceName == self.defaultSectionTitle_: # ... for default section - recreate
                     defaultProperties = DisplayProperties()
-            elif subsection == self.displaySubsectionTitle_:# if Camera subsection is absent ...
-                if deviceName == self.captureSubsectionTitle_: # ... for default section - recreate
+                else:                                       # ... otherwise - copy from default section
+                    defaultProperties = self.getDisplayProperties(self.defaultSectionTitle_)
+                    
+            elif subsection == self.captureSubsectionTitle_:# if Capture subsection is absent ...
+                if deviceName == self.defaultSectionTitle_: # ... for default section - recreate
                     defaultProperties = CaptureProperties()                
-            else:                                       # ... otherwise - copy from default section
+                else:                                       # ... otherwise - copy from default section
                     defaultProperties = self.getCaptureProperties(self.defaultSectionTitle_)
+                    
+            elif subsection == self.triggerSubsectionTitle_:# if Trigger subsection is absent ...
+                if deviceName == self.defaultSectionTitle_: # ... for default section - recreate
+                    defaultProperties = TriggerProperties()                
+                else:                                       # ... otherwise - copy from default section
+                    defaultProperties = self.getTriggerProperties(self.defaultSectionTitle_)
             
             iniFileLabels = defaultProperties._fields
             iniFileEntries = list(defaultProperties)
@@ -81,6 +93,7 @@ class AcquisitionINI:
         self.checkAndRecreateSection(self.defaultSectionTitle_, self.cameraSubsectionTitle_)
         self.checkAndRecreateSection(self.defaultSectionTitle_, self.displaySubsectionTitle_)        
         self.checkAndRecreateSection(self.defaultSectionTitle_, self.captureSubsectionTitle_)        
+        self.checkAndRecreateSection(self.defaultSectionTitle_, self.triggerSubsectionTitle_)        
         
     
     # Returns a list of camera options  
@@ -96,6 +109,8 @@ class AcquisitionINI:
             properties = DisplayProperties(*entries) 
         elif subsection == self.captureSubsectionTitle_ :             
             properties = CaptureProperties(*entries)
+        elif subsection == self.triggerSubsectionTitle_ :             
+            properties = TriggerProperties(*entries)            
         else:
             properties = None
             
@@ -116,4 +131,7 @@ class AcquisitionINI:
     def getCaptureProperties(self, deviceName):
         return self.getProperties(deviceName, self.captureSubsectionTitle_)
     
-    
+   # Returns a namedtuple of trigger options  
+    def getTriggerProperties(self, deviceName):
+        return self.getProperties(deviceName, self.triggerSubsectionTitle_)
+        

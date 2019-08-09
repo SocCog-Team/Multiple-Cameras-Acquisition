@@ -6,7 +6,7 @@ import PySpin
 #import copy
 from collections import deque
 import configparser
-from data_structures import ImageFormat, StreamProperties, CameraProperties, DisplayProperties, CaptureProperties
+from data_structures import ImageFormat, StreamProperties, CameraProperties, DisplayProperties, CaptureProperties, TriggerProperties
 import datetime
 #from SpinnakerControl import SpinnakerControl 
 
@@ -47,10 +47,14 @@ class SpinnakerCamera:
         #DISPLAY
         self.PySpin_DisplayPixelFormat = None
         self.PySpin_DisplayPixelFormatString = None
+        #TRIGGER
+        self.PySpin_TriggerMode = None
+        self.PySpin_TriggerModeString = None
         
         self.cameraProperties = None
         self.displayProperties = None
         self.captureProperties = None
+        self.triggerProperties = None
 
     def __del__(self):
         self.camera_.DeInit()
@@ -185,7 +189,7 @@ class SpinnakerCamera:
 
             if PySpin.IsAvailable(nodePixelFormat) and PySpin.IsWritable(nodePixelFormat):
                 # the goal is simply to extract the current camera's/display's/capture's configured pixelformat from acquisition.ini
-                self.cameraProperties, self.displayProperties, self.captureProperties = self.getSubsectionsFromIniFileForCurrentCamera()
+                self.cameraProperties, self.displayProperties, self.captureProperties, self.triggerProperties = self.getSubsectionsFromIniFileForCurrentCamera()
  
                 #this is now generic for all pixelformats
                 nodePixelFormatValue = PySpin.CEnumEntryPtr(nodePixelFormat.GetEntryByName(self.cameraProperties.pixelFormat))              
@@ -217,10 +221,7 @@ class SpinnakerCamera:
                     print('self.cameraProperties.pixelFormat: %s' % self.cameraProperties.pixelFormat)
                     print('self.captureProperties.pixelFormat: %s' % self.captureProperties.pixelFormat)
 
-                self.PySpin_CameraPixelFormat, streamProperties.format = self.getPySpinPixelTypeEnumValueFromString(self.cameraProperties.pixelFormat)
-#                print('PySpin_CameraPixelFormat: %s' % self.PySpin_CameraPixelFormat)
 
-                
                 # Retrieve the desired entry node from the enumeration node
                 if PySpin.IsAvailable(nodePixelFormatValue) and PySpin.IsReadable(nodePixelFormatValue):
                     # Retrieve the integer value from the entry node
@@ -243,7 +244,10 @@ class SpinnakerCamera:
                         supported_pixelformat_string += '{} '.format(node_enum.GetSymbolic())
                 
                     print('%s' % supported_pixelformat_string)   
-                    
+
+
+                self.PySpin_CameraPixelFormat, streamProperties.format = self.getPySpinPixelTypeEnumValueFromString(self.cameraProperties.pixelFormat)
+#                print('PySpin_CameraPixelFormat: %s' % self.PySpin_CameraPixelFormat)
                     
                 if self.PySpin_DisplayPixelFormatString != self.cameraProperties.pixelFormat:
                     print('Display pixelformat differs from camera pixelformat, requiring costly conversions.')
@@ -689,7 +693,7 @@ class SpinnakerCamera:
 
 
     def getSubsectionsFromIniFileForCurrentCamera(self):
-        # This should be folded back into acquisiion_ini to avaoid configuring the ini file name in two positions....
+        # This should be folded back into acquisition_ini to avaoid configuring the ini file name in two positions....
         
         cameraName = self.getName()
         cameraModel = self.getModel()
@@ -704,22 +708,29 @@ class SpinnakerCamera:
         if self.config_.has_section(sectionFullName + ", Camera"):
             labels, entries = zip(*self.config_.items(sectionFullName + ", Camera")) 
         else:
-            print('Could nor read sectionFullName: %s' % sectionFullName + ", Camera")                
+            print('Could not read sectionFullName: %s' % sectionFullName + ", Camera")                
         cameraProperties = CameraProperties(*entries)
 
         if self.config_.has_section(sectionFullName + ", Display"):
             labels, entries = zip(*self.config_.items(sectionFullName + ", Display")) 
         else:
-            print('Could nor read sectionFullName: %s' % sectionFullName + ", Display")                
+            print('Could not read sectionFullName: %s' % sectionFullName + ", Display")                
         displayProperties = DisplayProperties(*entries)
 
         if self.config_.has_section(sectionFullName + ", Capture"):
             labels, entries = zip(*self.config_.items(sectionFullName + ", Capture")) 
         else:
-            print('Could nor read sectionFullName: %s' % sectionFullName + ", Capture")                
+            print('Could not read sectionFullName: %s' % sectionFullName + ", Capture")                
         captureProperties = CaptureProperties(*entries)
+
+        if self.config_.has_section(sectionFullName + ", Trigger"):
+            labels, entries = zip(*self.config_.items(sectionFullName + ", Trigger")) 
+        else:
+            print('Could not read sectionFullName: %s' % sectionFullName + ", Trigger")                
+        triggerProperties = TriggerProperties(*entries)
+
 
         #print('self.cameraProperties.pixelFormat: %s' % cameraProperties.pixelFormat)
         del self.config_
         
-        return cameraProperties, displayProperties, captureProperties
+        return cameraProperties, displayProperties, captureProperties, triggerProperties

@@ -80,8 +80,7 @@ class VideoAcquisitionControl(MainWindow):
     def launch(self): 
         self.iniFile_.load()
         self.numCameras_ = self.videoControl_.initCameras() 
-        if self.numCameras_ > 0:
-            
+        if self.numCameras_ > 0:            
             self.loadSettings()
             self.videoControl_.startAcquisition()
             self.acquisitionOn_ = True
@@ -119,8 +118,10 @@ class VideoAcquisitionControl(MainWindow):
 
     def loadSettings(self):          
         for i in range(0,self.numCameras_):
+            print('DEBUG: self.videoControl_.names_[i] : %s' % self.videoControl_.names_[i] ) 
             cameraName = self.videoControl_.names_[i]
             cameraProperties = self.iniFile_.getCameraProperties(cameraName)
             displayProperties = self.iniFile_.getDisplayProperties(cameraName)
             captureProperties = self.iniFile_.getCaptureProperties(cameraName)
-            self.videoControl_.setParameters(i, cameraProperties, displayProperties, captureProperties)              
+            triggerProperties = self.iniFile_.getTriggerProperties(cameraName)
+            self.videoControl_.setParameters(i, cameraProperties, displayProperties, captureProperties, triggerProperties)              
