@@ -6,6 +6,7 @@ import PySpin
 #import copy
 from collections import deque
 import configparser
+from acquisition_ini import AcquisitionINI
 from data_structures import ImageFormat, StreamProperties, CameraProperties, DisplayProperties, CaptureProperties, TriggerProperties
 import datetime
 #from SpinnakerControl import SpinnakerControl 
@@ -694,7 +695,7 @@ class SpinnakerCamera:
 
     def getSubsectionsFromIniFileForCurrentCamera(self):
         # This should be folded back into acquisition_ini to avaoid configuring the ini file name in two positions....
-        
+        self.iniFile_ = AcquisitionINI()
         cameraName = self.getName()
         cameraModel = self.getModel()
         # re-create the key
@@ -706,28 +707,35 @@ class SpinnakerCamera:
         self.config_.optionxform = lambda option: option # switch to case-preserving mode 
         self.config_.read("acquisition.ini")
         if self.config_.has_section(sectionFullName + ", Camera"):
-            labels, entries = zip(*self.config_.items(sectionFullName + ", Camera")) 
+            labels, entries = zip(*self.config_.items(sectionFullName + ", Camera"))
+            cameraProperties = CameraProperties(*entries)
         else:
-            print('Could not read sectionFullName: %s' % sectionFullName + ", Camera")                
-        cameraProperties = CameraProperties(*entries)
+            print('Could not read sectionFullName: %s' % sectionFullName + ", Camera")
+            self.iniFile_.checkAndRecreateSection(self.iniFile_.defaultSectionTitle_, self.iniFile_.cameraSubsectionTitle_)
+            cameraProperties = self.iniFile_.getCameraProperties(cameraName)
+                
+        
 
         if self.config_.has_section(sectionFullName + ", Display"):
-            labels, entries = zip(*self.config_.items(sectionFullName + ", Display")) 
+            labels, entries = zip(*self.config_.items(sectionFullName + ", Display"))
+            displayProperties = DisplayProperties(*entries)
         else:
             print('Could not read sectionFullName: %s' % sectionFullName + ", Display")                
-        displayProperties = DisplayProperties(*entries)
+            displayProperties = self.iniFile_.getDisplayProperties(cameraName)
 
         if self.config_.has_section(sectionFullName + ", Capture"):
-            labels, entries = zip(*self.config_.items(sectionFullName + ", Capture")) 
+            labels, entries = zip(*self.config_.items(sectionFullName + ", Capture"))
+            captureProperties = CaptureProperties(*entries)
         else:
             print('Could not read sectionFullName: %s' % sectionFullName + ", Capture")                
-        captureProperties = CaptureProperties(*entries)
+            captureProperties = self.iniFile_.getCaptureProperties(cameraName)
 
         if self.config_.has_section(sectionFullName + ", Trigger"):
-            labels, entries = zip(*self.config_.items(sectionFullName + ", Trigger")) 
+            labels, entries = zip(*self.config_.items(sectionFullName + ", Trigger"))
+            triggerProperties = TriggerProperties(*entries)
         else:
             print('Could not read sectionFullName: %s' % sectionFullName + ", Trigger")                
-        triggerProperties = TriggerProperties(*entries)
+            triggerProperties = self.iniFile_.getTriggerProperties(cameraName)
 
 
         #print('self.cameraProperties.pixelFormat: %s' % cameraProperties.pixelFormat)

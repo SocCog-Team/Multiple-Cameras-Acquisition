@@ -90,11 +90,11 @@ class AcquisitionINI:
         self.config_.read(self.filename_) 
         if not self.config_:
             print('No INI file found, recreated')
+        print('TOAST2')
         self.checkAndRecreateSection(self.defaultSectionTitle_, self.cameraSubsectionTitle_)
         self.checkAndRecreateSection(self.defaultSectionTitle_, self.displaySubsectionTitle_)        
         self.checkAndRecreateSection(self.defaultSectionTitle_, self.captureSubsectionTitle_)        
         self.checkAndRecreateSection(self.defaultSectionTitle_, self.triggerSubsectionTitle_)        
-        
     
     # Returns a list of camera options  
     def getProperties(self, deviceName, subsection):
