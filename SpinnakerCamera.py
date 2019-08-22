@@ -694,9 +694,15 @@ class SpinnakerCamera:
 
 
     def getSubsectionsFromIniFileForCurrentCamera(self):
+        cameraName = self.getName()
         # This should be folded back into acquisition_ini to avaoid configuring the ini file name in two positions....
         self.iniFile_ = AcquisitionINI()
-        cameraName = self.getName()
+#        cameraProperties = self.iniFile_.getCameraProperties(cameraName)
+#        displayProperties = self.iniFile_.getDisplayProperties(cameraName)
+#        captureProperties = self.iniFile_.getCaptureProperties(cameraName)
+#        triggerProperties = self.iniFile_.getTriggerProperties(cameraName)
+
+
         cameraModel = self.getModel()
         # re-create the key
         sectionFullName = cameraModel + ", ID " + cameraName# + ", Camera"
@@ -711,7 +717,7 @@ class SpinnakerCamera:
             cameraProperties = CameraProperties(*entries)
         else:
             print('Could not read sectionFullName: %s' % sectionFullName + ", Camera")
-            self.iniFile_.checkAndRecreateSection(self.iniFile_.defaultSectionTitle_, self.iniFile_.cameraSubsectionTitle_)
+            #self.iniFile_.checkAndRecreateSection(self.iniFile_.defaultSectionTitle_, self.iniFile_.cameraSubsectionTitle_)
             cameraProperties = self.iniFile_.getCameraProperties(cameraName)
                 
         
