@@ -45,6 +45,7 @@ int num_output_pins = (sizeof(output_pin_lists) / sizeof(output_pin_lists[0]));
 
 
 // the input pins:
+bool gate_output_by_input = true;
 int input_pin = 1;
 int input_pin_state = LOW;
 int output_on_input_state = HIGH; // outputs are only active during this input state
@@ -82,10 +83,26 @@ void loop() {
   current_time_us = micros();
   // detect overflow/wrap-around
   if (last_time_us > current_time_us) {
-    // TODO fix wrap around???
+    // this only happens if last_time_us was close to maxint, and current_time_us
+    // wrapped around zero, we can now safely zero out all "deadlines" from the last
+    // "qurter" of the uint32_t timestamps 3*(2^32)/4) = 3221225472
+    // this solves issue 1) from above
+    for (byte i_pin = 0; i_pin < num_output_pins; i_pin++) {
+      if (output_pulse_start_ts_list[i_pin] >= 3221225472) {
+        output_pulse_start_ts_list[i_pin] = 0;
+      }
+      if (output_pulse_stop_ts_list[i_pin] >= 3221225472) {
+        output_pulse_stop_ts_list[i_pin] = 0;
+      }
+    }
   }
 
-  input_pin_state = digitalRead(input_pin);
+  if (gate_output_by_input) {
+    input_pin_state = digitalRead(input_pin);
+  } else {
+    input_pin_state = output_on_input_state;
+  }
+
   if (input_pin_state == output_on_input_state) {
 
     if (input_pin_last_state != input_pin_state) {
@@ -115,8 +132,8 @@ void loop() {
 
       // we just atrted a base period so check which pins to pull HIGH (pull all high on the first)
       for (byte i_pin = 0; i_pin < num_output_pins; i_pin++) {
-        // which pins need to be started
-        if ((output_pin_state_list[i_pin] == LOW) && (output_pulse_start_ts_list[i_pin] <= current_time_us)) {
+        // which pins need to be started ,only LOW pins are eligable, to deal with issue 2), expect the delta to be < than 1000000000 us (1000 seconds)
+        if ((output_pin_state_list[i_pin] == LOW) && (output_pulse_start_ts_list[i_pin] <= current_time_us) && ((current_time_us - output_pulse_start_ts_list[i_pin]) < 3221225472)) {
           digitalWrite(output_pin_lists[i_pin], HIGH);
           output_pulse_stop_ts_list[i_pin] = micros() + (1000 * output_pulse_width_ms_list[i_pin]); // get the best estimate for pulse end time stamp
           output_pin_state_list[i_pin] = HIGH;  // mark as high
@@ -128,8 +145,8 @@ void loop() {
 
     // check which pins to pull LOW (this is basically asynchronous from the start timestamps as pulse width are variable)
     for (byte i_pin = 0; i_pin < num_output_pins; i_pin++) {
-      // which pins need to be stopped
-      if ((output_pin_state_list[i_pin] == HIGH) && (output_pulse_stop_ts_list[i_pin] <= current_time_us)) {
+      // which pins need to be stopped, only HIGH pins are eligable, to deal with issue 2), expect the delta to be < than 1000000000 us  (1000 seconds)
+      if ((output_pin_state_list[i_pin] == HIGH) && (output_pulse_stop_ts_list[i_pin] <= current_time_us) && ((current_time_us - output_pulse_stop_ts_list[i_pin]) < 1000000000)) {
         digitalWrite(output_pin_lists[i_pin], LOW);
         output_pulse_stop_ts_list[i_pin] = 0;
         output_pin_state_list[i_pin] = LOW;  // mark as low
