@@ -11,6 +11,8 @@ code for acquiring video from several FLIR Chamelion 3 cameras
 
 - change the interpretation of -1 to mean Auto for gain and exposure time, add a toggle for the white balance add a per camera save path and file prefix/suffix
 
+- Fix the image X and Y Reverse options so that the iamges are not left right flipped.
+
                                                     
 # Code structure:
 
