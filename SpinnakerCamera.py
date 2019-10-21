@@ -625,7 +625,9 @@ class SpinnakerCamera:
         if self.camera_.ExposureTime.GetAccessMode() != PySpin.RW:
             print('Unable to set horizontal flip. Aborting...')
             return -1
-        self.camera_.ReverseX.SetValue(value)
+        #print ('value: %s' % value)
+        self.camera_.ReverseX.SetValue((value == 'True'), True)
+        #print('self.camera_.ReverseX.SetValue() %s' % value)
         return 0
     
     def getHorizontalFlip(self):
@@ -633,13 +635,16 @@ class SpinnakerCamera:
             print('Unable to get vertical flip. Aborting...')
             return -1
         isFlip = self.camera_.ReverseX.GetValue()
+        #print('self.camera_.ReverseX.GetValue() %s' % isFlip)
         return isFlip        
     
     def setVerticalFlip(self, value): # bool
         if self.camera_.ExposureTime.GetAccessMode() != PySpin.RW:
             print('Unable to set vertical flip. Aborting...')
             return -1
-        self.camera_.ReverseY.SetValue(value)
+        print('value: %s' % value)
+        self.camera_.ReverseY.SetValue((value == 'True'), True)
+        print('self.camera_.ReverseY.SetValue() %s' % value)
         return 0
     
     def getVerticalFlip(self):
@@ -647,6 +652,7 @@ class SpinnakerCamera:
             print('Unable to get vertical flip. Aborting...')
             return -1
         isFlip = self.camera_.ReverseY.GetValue()
+        #print('self.camera_.ReverseY.GetValue() %s' % isFlip)
         return isFlip
 
 

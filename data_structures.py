@@ -50,12 +50,14 @@ class CameraProperties(namedtuple('CameraProperties', ['fps', 'gain', 'exposure'
             raise ValueError('exposure value ' + str(exposure) + ' in ini-file is too large! Should be below ' + str(10.0**7/fps)) 
         
         try:
-            xFlip = bool(xFlip)
+            xFlip == 'True'
+            #xFlip = bool(xFlip)
         except ValueError:
             raise ValueError('xFlip value ' + str(xFlip) + ' in ini-file has incorrect format!') 
 
         try:
-            yFlip = bool(yFlip)
+            yFlip == 'True'
+            #yFlip = bool(yFlip)
         except ValueError:
             raise ValueError('yFlip value ' + str(yFlip) + ' in ini-file has incorrect format!')  
             

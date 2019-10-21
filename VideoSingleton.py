@@ -110,6 +110,8 @@ class VideoSingleton:
     #              Should be kept low.
     # output: double resultedFrameRate
     def setParameters(self, cameraProperties, displayProperties, captureProperties, triggerProperties):
+#        print('cameraProperties.xFlip: %s' % cameraProperties.xFlip)
+#        print('cameraProperties.yFlip: %s' % cameraProperties.yFlip)
         self.videoDisplay_.setScaling(displayProperties.stretch)
         self.videoDisplay_.setImageRotation(displayProperties.rotation)
         self.videoDisplay_.resize(displayProperties.windowWidth, displayProperties.windowHeight)
