@@ -9,6 +9,8 @@ import configparser
 from acquisition_ini import AcquisitionINI
 from data_structures import ImageFormat, StreamProperties, CameraProperties, DisplayProperties, CaptureProperties, TriggerProperties
 import datetime
+import socket
+import shutil
 #from SpinnakerControl import SpinnakerControl 
 
 
@@ -609,8 +611,7 @@ class SpinnakerCamera:
         #gain = min(self.camera_.Gain.GetMax(), gain)
         self.camera_.Gain.SetValue(gain)
         return 0
-    
-        
+            
     def getGain(self):
         if self.camera_.ExposureTime.GetAccessMode() != PySpin.RW:
             print('Unable to get gain. Aborting...')
@@ -637,6 +638,7 @@ class SpinnakerCamera:
         isFlip = self.camera_.ReverseX.GetValue()
         #print('self.camera_.ReverseX.GetValue() %s' % isFlip)
         return isFlip        
+ 
     
     def setVerticalFlip(self, value): # bool
         if self.camera_.ExposureTime.GetAccessMode() != PySpin.RW:
@@ -703,6 +705,7 @@ class SpinnakerCamera:
         cameraName = self.getName()
         # This should be folded back into acquisition_ini to avaoid configuring the ini file name in two positions....
         self.iniFile_ = AcquisitionINI()
+        ini_file_name = "acquisition.ini"
 #        cameraProperties = self.iniFile_.getCameraProperties(cameraName)
 #        displayProperties = self.iniFile_.getDisplayProperties(cameraName)
 #        captureProperties = self.iniFile_.getCaptureProperties(cameraName)
@@ -717,7 +720,7 @@ class SpinnakerCamera:
         # the ini file was already checked, so we simply assume a clean ini file
         self.config_ = configparser.RawConfigParser()
         self.config_.optionxform = lambda option: option # switch to case-preserving mode 
-        self.config_.read("acquisition.ini")
+        self.config_.read(ini_file_name)
         if self.config_.has_section(sectionFullName + ", Camera"):
             labels, entries = zip(*self.config_.items(sectionFullName + ", Camera"))
             cameraProperties = CameraProperties(*entries)
@@ -752,5 +755,11 @@ class SpinnakerCamera:
 
         #print('self.cameraProperties.pixelFormat: %s' % cameraProperties.pixelFormat)
         del self.config_
+        
+        #save the ini file to where the video files are written
+        host_name = socket.getfqdn()
+        output_aquisition_ini_fqn = '%s%s.%s' % (captureProperties.outputPath, ini_file_name, host_name)
+        shutil.copy2(ini_file_name, output_aquisition_ini_fqn)
+        
         
         return cameraProperties, displayProperties, captureProperties, triggerProperties
