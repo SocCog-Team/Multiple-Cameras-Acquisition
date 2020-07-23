@@ -93,8 +93,17 @@ class SpinnakerCamera:
        #     name = ptrDeviceID.GetValue()
        #     return name;
         if self.camera_.TLDevice.DeviceID.GetAccessMode() == PySpin.RO:
-            model = self.camera_.TLDevice.DeviceID.GetValue()
-            return model;       
+            name = self.camera_.TLDevice.DeviceID.GetValue()
+            # we actually want to usde the serial number as unambiguous identifier here
+            serial = self.camera_.TLDevice.DeviceSerialNumber.GetValue()
+            return serial;       
+        else:
+            return None;
+
+    def getSerial(self):
+        if self.camera_.TLDevice.DeviceID.GetAccessMode() == PySpin.RO:
+            serial = self.camera_.TLDevice.DeviceSerialNumber.GetValue()
+            return serial;       
         else:
             return None;
 
@@ -703,6 +712,9 @@ class SpinnakerCamera:
 
     def getSubsectionsFromIniFileForCurrentCamera(self):
         cameraName = self.getName()
+#        cameraSerialNum = self.getSerial()
+#        print('cameraSerialNum: %s' % cameraSerialNum)
+        
         # This should be folded back into acquisition_ini to avaoid configuring the ini file name in two positions....
         self.iniFile_ = AcquisitionINI()
         ini_file_name = "acquisition.ini"
